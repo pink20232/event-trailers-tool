@@ -1,0 +1,58 @@
+.main {
+  min-height: 100vh;
+  background: var(--color-neutral-25, #fafafa);
+  padding: 24px 0;
+}
+
+.container {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header :global(h1) {
+  color: rgba(0, 0, 0, 1);
+}
+
+.header :global(p) {
+  width: 100%;
+}
+
+.inputSection {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.previewSection {
+  width: 100%;
+  margin: 32px 0;
+}
+
+.editorSection {
+  width: 100%;
+  margin-top: 32px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 16px 0;
+  }
+  
+  .header {
+    margin-bottom: 24px;
+  }
+  
+  .previewSection {
+    margin: 24px 0;
+  }
+  
+  .editorSection {
+    margin-top: 24px;
+  }
+}
+
