@@ -4,12 +4,32 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('=== Preinstall script running ===');
-console.log('GITHUB_TOKEN exists:', !!process.env.GITHUB_TOKEN);
 console.log('Current directory:', process.cwd());
+console.log('All environment variables:', Object.keys(process.env).filter(k => k.includes('GITHUB') || k.includes('TOKEN') || k.includes('VERCEL')).join(', '));
 
-if (!process.env.GITHUB_TOKEN) {
-  console.error('ERROR: GITHUB_TOKEN environment variable is required');
-  console.error('Please set GITHUB_TOKEN in your Vercel environment variables');
+// Try multiple possible environment variable names
+const githubToken = process.env.GITHUB_TOKEN || 
+                    process.env.VERCEL_GITHUB_TOKEN || 
+                    process.env.GH_TOKEN ||
+                    process.env.GITHUB_PAT;
+
+console.log('GITHUB_TOKEN exists:', !!process.env.GITHUB_TOKEN);
+console.log('VERCEL_GITHUB_TOKEN exists:', !!process.env.VERCEL_GITHUB_TOKEN);
+console.log('GH_TOKEN exists:', !!process.env.GH_TOKEN);
+console.log('GITHUB_PAT exists:', !!process.env.GITHUB_PAT);
+console.log('Using token:', githubToken ? 'YES (hidden)' : 'NO');
+
+if (!githubToken) {
+  console.error('ERROR: GitHub token not found in environment variables');
+  console.error('Available env vars with GITHUB/TOKEN:', Object.keys(process.env).filter(k => 
+    k.toUpperCase().includes('GITHUB') || k.toUpperCase().includes('TOKEN')
+  ).join(', '));
+  console.error('');
+  console.error('Please ensure GITHUB_TOKEN is set in Vercel:');
+  console.error('1. Go to Project Settings → Environment Variables');
+  console.error('2. Add GITHUB_TOKEN with your GitHub Personal Access Token');
+  console.error('3. Make sure it\'s enabled for Production, Preview, and Development');
+  console.error('4. Redeploy the project');
   process.exit(1);
 }
 
@@ -29,7 +49,7 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 // Repository URL
 const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
 // Use HTTPS format with token embedded
-const gitUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
+const gitUrl = `https://${githubToken}@github.com/${repoUrl}.git`;
 
 console.log(`Installing @eventbrite/marmalade from ${repoUrl}...`);
 console.log('Git URL (token hidden):', `https://***@github.com/${repoUrl}.git`);
@@ -54,7 +74,7 @@ try {
   execSync(`git clone --depth 1 ${gitUrl} ${marmaladePath}`, {
     stdio: 'inherit',
     cwd: path.join(__dirname, '..'),
-    env: { ...process.env }
+    env: { ...process.env, GITHUB_TOKEN: githubToken }
   });
   
   console.log('✓ Successfully cloned marmalade package');
