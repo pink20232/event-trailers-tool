@@ -12,7 +12,6 @@
     "postinstall": "npm run install:marmalade || true"
   },
   "dependencies": {
-    "@eventbrite/marmalade": "git+https://github.com/eventbrite/design-ops-ds.git",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "next": "^14.0.0"

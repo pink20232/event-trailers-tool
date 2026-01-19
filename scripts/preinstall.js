@@ -13,15 +13,6 @@ if (!process.env.GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// Configure Git to use HTTPS instead of SSH (must be done first)
-try {
-  execSync('git config --global url."https://".insteadOf ssh://', { stdio: 'inherit' });
-  execSync('git config --global url."https://github.com/".insteadOf git@github.com:', { stdio: 'inherit' });
-  console.log('✓ Configured Git to use HTTPS');
-} catch (error) {
-  console.warn('Could not configure Git:', error.message);
-}
-
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 const nodeModulesPath = path.join(__dirname, '..', 'node_modules');
 const marmaladePath = path.join(nodeModulesPath, '@eventbrite', 'marmalade');
@@ -35,7 +26,7 @@ if (!fs.existsSync(packageJsonPath)) {
 
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-// Try common repository paths
+// Repository URL
 const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
 // Use HTTPS format with token embedded
 const gitUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
@@ -51,12 +42,19 @@ if (!fs.existsSync(path.join(nodeModulesPath, '@eventbrite'))) {
   fs.mkdirSync(path.join(nodeModulesPath, '@eventbrite'), { recursive: true });
 }
 
-// Install the package directly using git clone, then npm install it
+// Remove existing installation if it exists
+if (fs.existsSync(marmaladePath)) {
+  console.log('Removing existing marmalade installation...');
+  fs.rmSync(marmaladePath, { recursive: true, force: true });
+}
+
+// Clone the repository directly using git clone
 try {
-  console.log('Cloning repository...');
+  console.log('Cloning repository using git clone...');
   execSync(`git clone --depth 1 ${gitUrl} ${marmaladePath}`, {
     stdio: 'inherit',
-    cwd: path.join(__dirname, '..')
+    cwd: path.join(__dirname, '..'),
+    env: { ...process.env }
   });
   
   console.log('✓ Successfully cloned marmalade package');
@@ -65,18 +63,26 @@ try {
   packageJson.dependencies['@eventbrite/marmalade'] = `file:${marmaladePath}`;
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   
-  console.log('✓ Package.json updated to use local installation');
+  console.log('✓ Package.json updated to use local file installation');
+  console.log('✓ Preinstall script completed successfully');
 } catch (error) {
   console.error('✗ Failed to clone repository:', error.message);
+  console.error('Error details:', error);
   
-  // Fallback: Update package.json with HTTPS URL and let npm handle it
-  console.log('Falling back to npm install method...');
+  // If cloning fails, try installing via npm with the token in the URL
+  console.log('Attempting fallback: installing via npm...');
   try {
+    // Set up git config to use HTTPS
+    execSync('git config --global url."https://".insteadOf ssh://', { stdio: 'ignore' });
+    execSync('git config --global url."https://github.com/".insteadOf git@github.com:', { stdio: 'ignore' });
+    
+    // Update package.json with Git URL
     packageJson.dependencies['@eventbrite/marmalade'] = `git+${gitUrl}`;
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
+    
     console.log('✓ Package.json updated with Git URL (npm will install)');
   } catch (fallbackError) {
-    console.error('✗ Failed to update package.json:', fallbackError.message);
+    console.error('✗ Fallback also failed:', fallbackError.message);
     process.exit(1);
   }
 }
