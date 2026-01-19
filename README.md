@@ -6,8 +6,9 @@ A desktop web tool to simulate and preview event card videos. Upload videos from
 
 - **Multi-platform Support**: Paste links from YouTube, TikTok, or Instagram Reels
 - **1:1 Video Preview**: See exactly how your video will look on the event card
-- **60-Second Preview Editor**: Drag and select your desired 60-second preview segment
+- **30-Second Preview Editor**: Drag and select your desired 30-second preview segment
 - **Interactive Timeline**: Visual timeline scrubber with drag-to-select functionality
+- **Video Thumbnail Filmstrip**: Click thumbnails to jump to specific moments in YouTube videos
 - **Real-time Preview**: See changes instantly as you adjust the time range
 
 ## Getting Started
@@ -53,7 +54,10 @@ npm run dev
 │   ├── layout.tsx          # Root layout
 │   ├── page.tsx            # Main page component
 │   ├── page.module.css     # Page styles
-│   └── globals.css         # Global styles
+│   ├── globals.css         # Global styles
+│   └── api/
+│       └── youtube-thumbnails/
+│           └── route.ts    # API route for fetching YouTube thumbnails
 ├── components/
 │   ├── VideoUrlInput.tsx   # URL input component
 │   ├── EventCardPreview.tsx # 1:1 video preview
@@ -92,6 +96,19 @@ npm run lint
 - YouTube videos support seeking via the YouTube API
 - TikTok and Instagram Reels use their native embed players
 - The default video duration is set to 5 minutes (can be enhanced to detect actual duration)
+- **YouTube Thumbnails**: Thumbnails are fetched server-side to bypass CORS restrictions
+- **Optional YouTube API Key**: For more reliable thumbnail access, set `YOUTUBE_API_KEY` in your `.env.local` file
+  - Get your API key from: https://console.cloud.google.com/apis/credentials
+  - Enable "YouTube Data API v3" in your Google Cloud project
+- **Description Suggestions**: AI-powered description suggestions use Eventbrite's self-service LLM endpoints
+  - **Eventbrite LLM (Hackathon)**: 
+    - Generate your API key from the "Self-Service LLM Endpoints for Hackathon" announcement
+    - Follow the instructions to generate your API key in ~30 seconds
+    - Add it to `.env.local`: `EVENTBRITE_LLM_API_KEY=your_key_here`
+    - Optional: Set `EVENTBRITE_LLM_MODEL=qwen` or `mistral` (default: qwen)
+    - Optional: Set `EVENTBRITE_LLM_BASE_URL` if different from default
+    - Uses OpenAI-compatible proxy, so standard OpenAI client libraries work
+    - Restart your dev server after adding the key
 
 ## Future Enhancements
 

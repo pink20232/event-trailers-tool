@@ -1,3 +1,26 @@
+/* Explicit CSS variable definitions for Marmalade Design System */
+/* This ensures Cursor browser preview resolves colors correctly */
+:root {
+  /* Neutral colors - matching Marmalade Design System */
+  --color-neutral-25: #fafafa;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #a3a3a3;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+
+  /* Primary colors - override to black for buttons */
+  --color-primary-50: #eef2ff;
+  --color-primary-400: #818cf8;
+  --color-primary-600: rgba(0, 0, 0, 1);
+  --color-primary-500: rgba(0, 0, 0, 1);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -8,6 +31,8 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-y: hidden;
+  height: 100vh;
 }
 
 body {
@@ -43,3 +68,244 @@ body {
   src: local('Inter Bold'), local('Inter-Bold');
 }
 
+/* Gen 3 button overrides - ensure all buttons use Gen 3 dimensions */
+button[class*="Button"],
+button[class*="button"] {
+  /* Gen 3 MD base button dimensions */
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 10px 10px !important;
+  border-radius: 9999px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1.333 !important;
+  letter-spacing: 0.1px !important;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif !important;
+}
+
+/* Exception: Publish button uses LG size (44px) - must come after general rule */
+/* Target buttons inside publishButtonContainer with highest specificity */
+[class*="publishButtonContainer"] button,
+[class*="publishButtonContainer"] :global(button),
+.publishButtonContainer button,
+.publishButtonContainer :global(button),
+.publishButtonContainer > button,
+.publishButtonContainer > :global(button),
+button[class*="publishButton"],
+:global(button[class*="publishButton"]) {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 12px 20px !important;
+  font-size: 16px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+/* Exclude play/pause and media control buttons from global button styles */
+button[class*="playPauseButton"],
+button[class*="muteButton"],
+button[class*="swapButton"] {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: inherit !important;
+  font-family: inherit !important;
+}
+
+/* Exclude publish button from global button styles - it uses LG size (44px) */
+.publishButton button,
+.publishButton :global(button),
+button[class*="publishButton"] {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 12px 20px !important;
+  font-size: 16px !important;
+}
+
+/* Override any inline styles that set different dimensions - very aggressive */
+button[style*="padding: 8px"],
+button[style*="padding:8px"],
+button[style*="padding: 8px 16px"],
+button[style*="padding:8px 16px"],
+button[style*="padding:8px 12px"],
+button[style*="padding: 8px 12px"],
+button[style*="height: 35px"],
+button[style*="height:35px"],
+button[style*="height: 32px"],
+button[style*="height:32px"],
+button[style*="border-radius: 4px"],
+button[style*="border-radius:4px"],
+button[style*="border-radius: 6px"],
+button[style*="border-radius:6px"] {
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 10px 10px !important;
+  border-radius: 9999px !important;
+}
+
+/* Target buttons by their computed styles - override Gen 1 dimensions */
+button {
+  /* Force Gen 3 dimensions if button has Gen 1 characteristics */
+}
+
+/* More specific targeting for Marmalade buttons */
+button[class*="Button"][style*="padding"],
+button[class*="button"][style*="padding"] {
+  padding: 10px 10px !important;
+}
+
+button[class*="Button"][style*="height"],
+button[class*="button"][style*="height"] {
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+}
+
+/* Exception for publish button - preserve its LG size */
+.publishButton button[style*="height"],
+.publishButton :global(button[style*="height"]) {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+}
+
+/* Override for play/pause and media control buttons - must come after height rules */
+button[class*="playPauseButton"][style*="height"],
+button[class*="muteButton"][style*="height"],
+button[class*="swapButton"][style*="height"] {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
+/* Global overrides for primary buttons to use Gen 3 black */
+button[class*="primary"],
+button[class*="Primary"],
+button[class*="button"][class*="primary"],
+button[class*="Button"][class*="primary"],
+:global(button[class*="primary"]),
+:global(button[class*="Primary"]),
+button[style*="#2563eb"],
+button[style*="rgb(37, 99, 235)"] {
+  background-color: #161719 !important; /* Gen 3 primary base */
+  background: #161719 !important;
+  border-color: #161719 !important;
+  color: #ffffff !important;
+}
+
+button[class*="primary"]:hover,
+button[class*="Primary"]:hover,
+button[class*="button"][class*="primary"]:hover,
+button[class*="Button"][class*="primary"]:hover,
+:global(button[class*="primary"]:hover),
+:global(button[class*="Primary"]:hover) {
+  /* Gen 3 primary button hover: #25272b */
+  background-color: #25272b !important;
+  background: #25272b !important;
+}
+
+button[class*="primary"]:active,
+button[class*="Primary"]:active,
+button[class*="button"][class*="primary"]:active,
+button[class*="Button"][class*="primary"]:active,
+:global(button[class*="primary"]:active),
+:global(button[class*="Primary"]:active) {
+  /* Gen 3 primary button press: #3d3f43 */
+  background-color: #3d3f43 !important;
+  background: #3d3f43 !important;
+}
+
+/* Force consistent input and text colors for Cursor browser compatibility */
+input[type="text"],
+input[type="time"],
+input[type="date"],
+input[type="url"],
+input[type="email"],
+textarea {
+  background-color: #ffffff !important;
+  color: #262626 !important;
+}
+
+input[type="text"]::placeholder,
+input[type="time"]::placeholder,
+input[type="date"]::placeholder,
+input[type="url"]::placeholder,
+input[type="email"]::placeholder,
+textarea::placeholder {
+  color: #a3a3a3 !important;
+}
+
+/* Override Marmalade TextField component styles for Cursor browser */
+/* Target Marmalade TextField input elements */
+input[class*="TextField"],
+input[class*="textField"],
+[class*="TextField"] input,
+[class*="textField"] input {
+  background-color: #ffffff !important;
+  border-color: #d4d4d4 !important;
+  color: #262626 !important;
+}
+
+/* Force 8px gap on TextField wrapper divs - multiple aggressive selectors */
+div[style*="margin-bottom"]:has(> label):has(> input),
+div[style*="margin-bottom"]:has(label):has(input),
+div:has(> label[style*="display:block"]):has(> input[type="text"]),
+div:has(> label[style*="display:block"]):has(> input[type="time"]),
+div:has(> label[style*="display:block"]):has(> input[placeholder]) {
+  gap: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Universal rule for any div containing both label and input */
+div:has(label):has(input) {
+  gap: 8px !important;
+}
+
+input[class*="TextField"]:focus,
+input[class*="textField"]:focus,
+[class*="TextField"] input:focus,
+[class*="textField"] input:focus {
+  border-color: #262626 !important;
+}
+
+input[class*="TextField"]::placeholder,
+input[class*="textField"]::placeholder,
+[class*="TextField"] input::placeholder,
+[class*="textField"] input::placeholder {
+  color: #a3a3a3 !important;
+}
+
+/* Ensure Typography components use correct colors */
+/* Target Marmalade Typography component color classes */
+[class*="Typography"][class*="neutral-600"],
+[class*="Typography"][class*="neutral-600"] *,
+[class*="typography"][class*="neutral-600"],
+[class*="typography"][class*="neutral-600"] * {
+  color: #525252 !important;
+}
+
+[class*="Typography"][class*="neutral-800"],
+[class*="Typography"][class*="neutral-800"] *,
+[class*="typography"][class*="neutral-800"],
+[class*="typography"][class*="neutral-800"] * {
+  color: #262626 !important;
+}
+
+[class*="Typography"][class*="neutral-700"],
+[class*="Typography"][class*="neutral-700"] *,
+[class*="typography"][class*="neutral-700"],
+[class*="typography"][class*="neutral-700"] * {
+  color: #404040 !important;
+}

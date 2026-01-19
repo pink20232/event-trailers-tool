@@ -24,10 +24,12 @@ export function parseVideoUrl(url: string): VideoInfo | null {
   for (const pattern of youtubePatterns) {
     const match = url.match(pattern);
     if (match && match[1]) {
+      const videoId = match[1];
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
       return {
         platform: 'youtube',
-        videoId: match[1],
-        embedUrl: `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&controls=0&modestbranding=1&rel=0&showinfo=0&mute=1&loop=1&playlist=${match[1]}&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`,
+        videoId: videoId,
+        embedUrl: `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&loop=1&playlist=${videoId}&rel=0`,
         originalUrl: url,
       };
     }
@@ -82,5 +84,4 @@ export function getPlatformName(platform: VideoPlatform): string {
       return 'Unknown';
   }
 }
-
 

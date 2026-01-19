@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import './button-black-override.css'
 
 export const metadata: Metadata = {
   title: 'Event Card Preview Tool',
@@ -21,7 +22,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body style={{ margin: 0, padding: 0, minHeight: '100vh', backgroundColor: '#ffffff' }}>
+        {children}
+      </body>
     </html>
   )
 }

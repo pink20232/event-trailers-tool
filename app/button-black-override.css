@@ -1,0 +1,36 @@
+/* Direct CSS override for all primary buttons - highest specificity */
+/* This file should be imported after Marmalade styles */
+
+/* Target buttons with primary variant using attribute selector */
+button[data-variant="primary"],
+button[aria-label*="primary" i],
+button[class*="primary" i] {
+  background-color: rgba(0, 0, 0, 1) !important;
+  background: rgba(0, 0, 0, 1) !important;
+  border-color: rgba(0, 0, 0, 1) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+button[data-variant="primary"]:hover,
+button[aria-label*="primary" i]:hover,
+button[class*="primary" i]:hover {
+  /* Gen 3 primary button hover: #25272b */
+  background-color: #25272b !important;
+  background: #25272b !important;
+}
+
+button[data-variant="primary"]:active,
+button[aria-label*="primary" i]:active,
+button[class*="primary" i]:active {
+  /* Gen 3 primary button press: #3d3f43 */
+  background-color: #3d3f43 !important;
+  background: #3d3f43 !important;
+}
+
+/* Also target by style attribute if Marmalade uses inline styles */
+button[style*="rgb(37, 99, 235)"],
+button[style*="#2563EB"] {
+  background-color: rgba(0, 0, 0, 1) !important;
+  background: rgba(0, 0, 0, 1) !important;
+}
+

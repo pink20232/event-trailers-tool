@@ -14,6 +14,201 @@ interface VideoEditorProps {
 
 const MAX_PREVIEW_DURATION = 30; // 30 seconds
 
+// Inline thumbnail strip component
+const ThumbnailStrip: React.FC<{
+  videoId: string;
+  duration: number;
+  thumbnailCount: number;
+}> = ({ videoId, duration, thumbnailCount }) => {
+  const [thumbnails, setThumbnails] = useState<Array<{ timestamp: number; spriteX: number; spriteY: number; url: string; frameIndex: number }>>([]);
+  const [spriteUrl, setSpriteUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [useFallback, setUseFallback] = useState(false);
+  
+  useEffect(() => {
+    setIsLoading(true);
+    setUseFallback(false);
+    
+    // Strategy 1: Try to load storyboard sprite sheet via API
+    const apiSpriteUrl = `/api/youtube-thumbnails?videoId=${videoId}&type=sprite`;
+    
+    // Calculate thumbnail positions based on actual timestamps
+    const thumbnailWidth = 160;
+    const thumbnailHeight = 90;
+    const columnsPerRow = 3;
+    
+    // YouTube storyboards have frames at fixed intervals (typically 5 seconds)
+    // The storyboard has frames at: 0, 5, 10, 15, 20, 25... seconds
+    // We need to use the actual storyboard frame timestamps so thumbnails match the video
+    
+    // YouTube storyboard frame interval (typically 5 seconds)
+    const storyboardFrameInterval = 5;
+    // Calculate how many frames YouTube provides (max ~20 frames)
+    const maxStoryboardFrames = Math.min(20, Math.ceil(duration / storyboardFrameInterval));
+    
+    // Generate thumbnails at actual storyboard frame positions
+    // This ensures each thumbnail shows the correct frame from the video
+    const actualFrameCount = Math.min(thumbnailCount, maxStoryboardFrames);
+    const generated: Array<{ timestamp: number; spriteX: number; spriteY: number; url: string; frameIndex: number }> = [];
+    
+    for (let i = 0; i < actualFrameCount; i++) {
+      // Use actual storyboard frame timestamps (0, 5, 10, 15...)
+      const timestamp = Math.min(i * storyboardFrameInterval, duration);
+      const frameIndex = i;
+      
+      // Calculate sprite position (3 columns per row)
+      const row = Math.floor(frameIndex / columnsPerRow);
+      const col = frameIndex % columnsPerRow;
+      
+      // Calculate sprite position for this specific frame
+      const spriteX = col * thumbnailWidth;
+      const spriteY = row * thumbnailHeight;
+      
+      // For fallback, use individual thumbnail URL
+      const fallbackUrl = `/api/youtube-thumbnails?videoId=${videoId}`;
+      
+      generated.push({
+        timestamp, // Use the actual storyboard frame time
+        spriteX,
+        spriteY,
+        url: fallbackUrl,
+        frameIndex,
+      });
+    }
+    
+    // If we need more thumbnails than storyboard frames, duplicate the last frame
+    while (generated.length < thumbnailCount) {
+      const lastFrame = generated[generated.length - 1];
+      generated.push({
+        ...lastFrame,
+        timestamp: duration, // Place at end of video
+      });
+    }
+    
+    setThumbnails(generated);
+    
+    // Try to preload the sprite sheet with timeout
+    let timeoutId: NodeJS.Timeout;
+    let isMounted = true;
+    
+    const img = new Image();
+    timeoutId = setTimeout(() => {
+      if (isMounted) {
+        console.warn('Sprite sheet load timeout, using fallback');
+        setSpriteUrl(null);
+        setUseFallback(true);
+        setIsLoading(false);
+      }
+    }, 5000); // 5 second timeout
+    
+    img.onload = () => {
+      if (isMounted) {
+        clearTimeout(timeoutId);
+        setSpriteUrl(apiSpriteUrl);
+        setIsLoading(false);
+      }
+    };
+    img.onerror = () => {
+      if (isMounted) {
+        clearTimeout(timeoutId);
+        console.warn('Sprite sheet failed, using fallback thumbnails');
+        // Use fallback: show default thumbnail repeated
+        setSpriteUrl(null);
+        setUseFallback(true);
+        setIsLoading(false);
+      }
+    };
+    img.src = apiSpriteUrl;
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [videoId, duration, thumbnailCount]);
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isLoading || thumbnails.length === 0) {
+    return (
+      <div className={styles.thumbnailStrip}>
+        <div className={styles.thumbnailPlaceholder}>
+          <Typography variant="body-sm" color="neutral-600">
+            {isLoading ? 'Loading thumbnails...' : 'Thumbnails unavailable'}
+          </Typography>
+        </div>
+      </div>
+    );
+  }
+
+  const columnsPerRow = 3;
+  const thumbnailWidth = 160;
+  const thumbnailHeight = 90;
+
+  return (
+    <div className={styles.thumbnailStrip}>
+      {thumbnails.map((thumb, idx) => {
+        // If sprite sheet failed, use fallback individual thumbnails
+        if (useFallback || !spriteUrl) {
+          return (
+            <div
+              key={idx}
+              className={styles.thumbnailItem}
+              style={{ width: `${100 / thumbnailCount}%` }}
+              aria-label={`Thumbnail at ${formatTime(thumb.timestamp)}`}
+            >
+              <img
+                src={thumb.url}
+                alt={`Thumbnail at ${formatTime(thumb.timestamp)}`}
+                className={styles.thumbnailImg}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.style.backgroundColor = 'var(--color-neutral-200)';
+                  }
+                }}
+              />
+            </div>
+          );
+        }
+
+        // Use sprite sheet extraction - each thumbnail shows a different frame
+        // Calculate the total rows needed for the sprite sheet
+        const totalRows = Math.ceil(thumbnailCount / columnsPerRow);
+        const spriteSheetWidth = thumbnailWidth * columnsPerRow;
+        const spriteSheetHeight = thumbnailHeight * totalRows;
+        
+        return (
+          <div
+            key={idx}
+            className={styles.thumbnailItem}
+            style={{ width: `${100 / thumbnailCount}%` }}
+            aria-label={`Thumbnail at ${formatTime(thumb.timestamp)}`}
+          >
+            <div 
+              className={styles.thumbnailImgWrapper}
+              style={{
+                backgroundImage: spriteUrl ? `url("${spriteUrl}")` : 'none',
+                backgroundPosition: `-${thumb.spriteX}px -${thumb.spriteY}px`,
+                backgroundSize: `${spriteSheetWidth}px ${spriteSheetHeight}px`,
+                backgroundRepeat: 'no-repeat',
+                width: `${thumbnailWidth}px`,
+                height: `${thumbnailHeight}px`,
+              }}
+              title={`Frame at ${formatTime(thumb.timestamp)}`}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const VideoEditor: React.FC<VideoEditorProps> = ({
   videoInfo,
   onTimeRangeChange,
@@ -133,6 +328,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+
   const startPercentage = (startTime / duration) * 100;
   const endPercentage = (endTime / duration) * 100;
   const selectedWidth = endPercentage - startPercentage;
@@ -154,14 +350,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
     <div className={styles.editorContainer}>
       <Stack space="spacing-md">
         <div className={styles.header}>
-          <Typography variant="heading-sm">Video Editor</Typography>
-          <Typography variant="body-sm" color="neutral-600">
-            Full video duration: {formatTime(duration)}
-            {duration === 300 && videoInfo && (
-              <span> (detecting actual duration...)</span>
-            )}
-            {' • '}Select your 30-second preview
-          </Typography>
+          <Typography variant="heading-sm">Select your 30 second preview</Typography>
         </div>
 
         <div className={styles.timelineContainer}>
@@ -174,22 +363,34 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
             </Typography>
           </div>
 
-          <div
-            ref={timelineRef}
-            className={styles.timeline}
-            onMouseDown={(e) => {
-              const time = getTimeFromX(e.clientX);
-              if (time >= startTime && time <= endTime) {
-                handleMouseDown(e, 'range');
-              } else {
-                // Click outside selected range - move 30-second window to clicked position
-                const newStart = Math.max(0, Math.min(time - MAX_PREVIEW_DURATION / 2, duration - MAX_PREVIEW_DURATION));
-                const newEnd = Math.min(newStart + MAX_PREVIEW_DURATION, duration);
-                setStartTime(newStart);
-                setEndTime(newEnd);
-              }
-            }}
-          >
+          {/* Thumbnail filmstrip with timeline overlay */}
+          <div className={styles.timelineWrapper}>
+            {/* Thumbnail filmstrip as base layer */}
+            {videoInfo && videoInfo.platform === 'youtube' && duration > 0 && (
+              <ThumbnailStrip
+                videoId={videoInfo.videoId}
+                duration={duration}
+                thumbnailCount={Math.min(20, Math.max(10, Math.floor(duration / 10)))}
+              />
+            )}
+
+            {/* Timeline overlay on top of thumbnails */}
+            <div
+              ref={timelineRef}
+              className={styles.timeline}
+              onMouseDown={(e) => {
+                const time = getTimeFromX(e.clientX);
+                if (time >= startTime && time <= endTime) {
+                  handleMouseDown(e, 'range');
+                } else {
+                  // Click outside selected range - move 30-second window to clicked position
+                  const newStart = Math.max(0, Math.min(time - MAX_PREVIEW_DURATION / 2, duration - MAX_PREVIEW_DURATION));
+                  const newEnd = Math.min(newStart + MAX_PREVIEW_DURATION, duration);
+                  setStartTime(newStart);
+                  setEndTime(newEnd);
+                }
+              }}
+            >
             {/* Full timeline background */}
             <div className={styles.timelineBackground} />
 
@@ -271,14 +472,8 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
                 return markers;
               })()}
             </div>
+            </div>
           </div>
-        </div>
-
-
-        <div className={styles.info}>
-          <Typography variant="body-sm" color="neutral-600">
-            Selected 30-second preview: {formatTime(startTime)} - {formatTime(endTime)} ({formatTime(endTime - startTime)})
-          </Typography>
         </div>
       </Stack>
     </div>

@@ -39,3 +39,4 @@ If you prefer using a Personal Access Token instead:
    npm install git+https://YOUR_TOKEN@github.com/eventbrite/mobile-design-system-atoms.git
    ```
 
+

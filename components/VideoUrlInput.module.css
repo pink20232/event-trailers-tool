@@ -1,5 +1,27 @@
 .container {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.inputWrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.buttonWrapper {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 24px; /* Align with TextField label */
+  flex-shrink: 0;
 }
 
 .container :global(input[type="text"]),
@@ -7,12 +29,46 @@
   background-color: rgba(255, 255, 255, 1);
 }
 
-/* Button styling - make Load Video button black */
-.container :global(button),
-.container :global(button[class*="Button"]) {
-  background-color: rgba(0, 0, 0, 1) !important;
-  background: rgba(0, 0, 0, 1) !important;
-  color: #ffffff !important;
-  font-family: "Founders Grotesk R";
+/* Button styling - match Figma design (secondary variant) */
+.loadButton {
+  min-width: 120px;
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Button background color and text styling */
+.buttonWrapper :global(button),
+.buttonWrapper :global(button[class*="Button"]),
+.loadButton {
+  background-color: #E4E5E6 !important;
+  background: #E4E5E6 !important;
+  border-color: #E4E5E6 !important;
+}
+
+/* Ensure button text is 100% black - target all possible nested elements */
+.buttonWrapper :global(button),
+.buttonWrapper :global(button[class*="Button"]),
+.buttonWrapper :global(button) *,
+.buttonWrapper :global(button[class*="Button"]) *,
+.loadButton,
+.loadButton * {
+  color: #000000 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+@media (max-width: 768px) {
+  .inputRow {
+    flex-direction: column;
+  }
+  
+  .buttonWrapper {
+    padding-top: 0;
+    width: 100%;
+  }
+  
+  .loadButton {
+    width: 100%;
+  }
 }
 

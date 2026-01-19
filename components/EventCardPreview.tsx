@@ -3,12 +3,15 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Typography, Stack, Button } from '@eventbrite/marmalade';
 import { type VideoInfo } from '@/lib/videoUtils';
+import { type EventData } from './EventSidebar';
 import styles from './EventCardPreview.module.css';
 
 interface EventCardPreviewProps {
   videoInfo: VideoInfo | null;
   startTime: number;
   endTime: number;
+  eventData?: EventData;
+  organizerLogo?: string | null; // Optional override for preview logo
   onDurationDetected?: (duration: number) => void;
   onPlaybackTimeUpdate?: (currentTime: number) => void;
 }
@@ -17,9 +20,13 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
   videoInfo,
   startTime,
   endTime,
+  eventData,
+  organizerLogo,
   onDurationDetected,
   onPlaybackTimeUpdate,
 }) => {
+  // Use organizerLogo prop if provided, otherwise fall back to eventData.organizerLogo
+  const displayLogo = organizerLogo !== undefined ? organizerLogo : eventData?.organizerLogo;
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isReady, setIsReady] = useState(false);
   const [isMuted, setIsMuted] = useState(true); // Default: no sound (muted)
@@ -344,6 +351,27 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
       const currentTime = startTime + currentTimeInRange;
       lastPlaybackTimeRef.current = currentTime;
       
+      // If we've reached or passed endTime, seek back to startTime for looping
+      if (currentTime >= endTime - 0.1) { // Small buffer to account for timing
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow && videoInfo?.platform === 'youtube') {
+          try {
+            iframe.contentWindow.postMessage(
+              JSON.stringify({
+                event: 'command',
+                func: 'seekTo',
+                args: [startTime, true],
+              }),
+              'https://www.youtube.com'
+            );
+            // Reset the playback start time to maintain smooth looping
+            playbackStartTimeRef.current = Date.now();
+          } catch (error) {
+            console.error('Error seeking YouTube player for loop:', error);
+          }
+        }
+      }
+      
       onPlaybackTimeUpdate(currentTime);
     }, 100); // Update every 100ms for smooth progress
 
@@ -386,13 +414,154 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
     setIsPaused(prev => !prev);
   };
 
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return '';
+    // Check if it's already in mm/dd format
+    if (/^\d{2}\/\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    // Try to parse as ISO date or other date format
+    try {
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        const month = date.getMonth() + 1; // getMonth() returns 0-11
+        const day = date.getDate();
+        // Format as mm/dd
+        return `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
+      }
+    } catch (e) {
+      // If parsing fails, return as-is
+    }
+    return dateString;
+  };
+
+  const formatTime = (timeString: string): string => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'pm' : 'am';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}${minutes !== '00' ? `:${minutes}` : ''}${ampm}`;
+  };
+
+  // Truncate description to 160 characters for preview
+  const truncateDescription = (text: string, maxLength: number = 160): string => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  };
+
+  // Show event card with default/cold start values even without video
+  const showEventCard = !videoInfo || eventData;
+  
   if (!videoInfo) {
+    // Show event card with placeholder media area and event details
     return (
       <div className={styles.previewContainer}>
-        <div className={styles.placeholder}>
-          <Typography variant="body-md" color="neutral-600">
-            Load a video to see preview
-          </Typography>
+        <div className={styles.eventCard}>
+          {/* Media Frame Section with Placeholder */}
+          <div className={styles.mediaFrame}>
+            <div className={styles.videoContainer}>
+              <div className={styles.placeholder}>
+                <Typography variant="body-md" color="neutral-600">
+                  Load a video to see preview
+                </Typography>
+              </div>
+            </div>
+            
+            {/* Gradient Overlay (Scrim) */}
+            <div className={styles.gradientOverlay} />
+            
+            {/* Event Title Overlay */}
+            <div className={styles.titleOverlay}>
+              <h1 className={styles.eventTitle}>
+                {eventData?.title || 'Event title'}
+              </h1>
+            </div>
+            
+            {/* Date and Time Overlay */}
+            <div className={styles.dateTimeOverlay}>
+              <span className={styles.dateTime}>
+                {eventData?.date ? formatDate(eventData.date) : 'Date'}
+              </span>
+              <svg 
+                className={styles.dot}
+                width="3"
+                height="3"
+                viewBox="0 0 3 3"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
+              </svg>
+              <span className={styles.dateTime}>
+                {eventData?.time ? formatTime(eventData.time) : 'Time'}
+              </span>
+            </div>
+            
+            {/* Venue/Location Overlay */}
+            <div className={styles.locationOverlay}>
+              <span className={styles.location}>
+                {eventData?.venue || 'Venue'}
+              </span>
+            </div>
+          </div>
+          
+          {/* Content Section - 160 characters event summary */}
+          <div className={styles.contentSection}>
+            <div className={styles.description}>
+              <Typography variant="body-md" color="neutral-700">
+                {truncateDescription(eventData?.description || '160 characters event summary. 160 characters event summary. 160 characters event summary.')}
+              </Typography>
+            </div>
+          </div>
+          
+          {/* Footer Section */}
+          <div className={styles.footer}>
+            <div>
+              <div className={styles.priceButtonWrapper}>
+                <Button variant="primary" className={styles.priceButton}>
+                  From $-
+                </Button>
+              </div>
+              <div className={styles.actionButtons}>
+                <button
+                  className={styles.iconButton}
+                  aria-label="Save event"
+                  type="button"
+                >
+                  <svg width="24" height="24" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M11.7039 6.54237C11.4332 7.15291 10.5668 7.15291 10.2961 6.54237L9.17095 4.00472C8.65132 2.82999 7.43966 2 5.92022 2C4.85362 2 3.7053 2.42821 2.89693 3.37669C2.01399 4.41267 1.7457 5.8521 2.26001 7.16517C2.61386 8.06858 3.26491 9.07577 3.80579 9.86126C5.04238 11.6571 7.16263 14.0644 9.03937 16.0816C9.76739 16.8642 10.4453 17.5738 11 18.1468C11.5547 17.5738 12.2326 16.8642 12.9606 16.0816C14.8374 14.0644 16.9576 11.6571 18.1942 9.86127C18.7351 9.07577 19.3861 8.06858 19.74 7.16517C20.2543 5.8521 19.986 4.41267 19.1031 3.37669C18.2947 2.42821 17.1464 2 16.0798 2C14.5603 2 13.3487 2.82999 12.829 4.00472L11.7039 6.54237ZM12.4022 19.5738C12.0346 19.9533 11.7222 20.2718 11.4862 20.5108C11.1779 20.8232 11 21 11 21C11 21 10.8221 20.8232 10.5138 20.5108C10.2778 20.2718 9.96542 19.9533 9.59783 19.5738C7.61304 17.5247 4.01917 13.6976 2.15855 10.9955C1.61622 10.2079 0.843994 9.03384 0.397768 7.89459C-0.391756 5.87888 0.0247803 3.66335 1.37476 2.07938C2.6096 0.630518 4.34345 0 5.92022 0C7.37996 0 8.70787 0.520901 9.69763 1.40636C10.2482 1.89894 10.6942 2.50435 11 3.19565C11.3058 2.50435 11.7518 1.89894 12.3024 1.40636C13.2921 0.520902 14.62 0 16.0798 0C17.6565 0 19.3904 0.630516 20.6252 2.07938C21.9752 3.66335 22.3918 5.87887 21.6022 7.89459C21.156 9.03383 20.3838 10.2079 19.8415 10.9955C17.9808 13.6976 14.387 17.5247 12.4022 19.5738Z" fill="currentColor"/>
+                  </svg>
+                </button>
+                <button
+                  className={styles.iconButton}
+                  aria-label="Share event"
+                  type="button"
+                >
+                  <svg width="24" height="24" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.99954 0L16.9991 6.99954L15.5849 8.41376L11 3.82889L11 16H9L9 3.82797L4.41421 8.41376L3 6.99954L9.99954 0Z" fill="currentColor"/>
+                    <path d="M0 18V11H2V18C2 18.5523 2.44772 19 3 19H17C17.5523 19 18 18.5523 18 18V11H20V18C20 19.6569 18.6569 21 17 21H3C1.34315 21 0 19.6569 0 18Z" fill="currentColor"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <button className={styles.avatarButton} aria-label="Profile" type="button">
+              {displayLogo ? (
+                <img 
+                  src={displayLogo} 
+                  alt="Organizer logo"
+                  className={styles.organizerLogo}
+                />
+              ) : (
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="20" r="20" fill="#E5E5E5"/>
+                  <circle cx="20" cy="15" r="5" fill="#999999"/>
+                  <ellipse cx="20" cy="30" rx="8" ry="5" fill="#999999"/>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -416,7 +585,7 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
             />
           </div>
           
-          {/* Gradient Overlay */}
+          {/* Gradient Overlay (Scrim) */}
           <div className={styles.gradientOverlay} />
           
           {/* Pause/Play Icon Button - Center */}
@@ -448,96 +617,108 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
             onClick={handleToggleMute}
           >
             {isMuted ? (
-              // Muted icon (speaker with X)
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 2L6 6H2V14H6L10 18V2Z" fill="white" />
-                <path d="M13 7L17 11M17 7L13 11" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M11 2L5 6H2v8h3l6 4V2z" fill="white"/>
+                <path d="M14 7l4 4m0-4l-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             ) : (
-              // Unmuted icon (sound on - speaker with sound waves)
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 2L6 6H2V14H6L10 18V2Z" fill="white" />
-                <path d="M13 7C13.5 7.5 14 8.5 14 10C14 11.5 13.5 12.5 13 13M15 5C16 6 16.5 7.5 16.5 10C16.5 12.5 16 14 15 15" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <path d="M11 2L5 6H2v8h3l6 4V2z" fill="white"/>
+                <path d="M14 7l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               </svg>
             )}
-          </button>
-          
-          {/* Swap Icon Button - Bottom Left */}
-          <button
-            className={styles.swapButton}
-            aria-label="Swap media"
-            type="button"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 8L1 11L4 14M16 8L19 11L16 14M13 3L7 17" stroke="white" strokeWidth="2" strokeLinecap="round" />
-            </svg>
           </button>
           
           {/* Event Title Overlay */}
           <div className={styles.titleOverlay}>
             <h1 className={styles.eventTitle}>
-              San Francisco Coffee Festival
+              {eventData?.title || 'Event title'}
             </h1>
           </div>
           
           {/* Date and Time Overlay */}
           <div className={styles.dateTimeOverlay}>
             <span className={styles.dateTime}>
-              Sat, Mar 27
+              {eventData?.date ? formatDate(eventData.date) : 'Date'}
             </span>
-            <span className={styles.dot}>•</span>
+            <svg 
+              className={styles.dot}
+              width="3"
+              height="3"
+              viewBox="0 0 3 3"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
+            </svg>
             <span className={styles.dateTime}>
-              10am
+              {eventData?.time ? formatTime(eventData.time) : 'Time'}
             </span>
           </div>
           
-          {/* Location Overlay */}
+          {/* Venue/Location Overlay */}
           <div className={styles.locationOverlay}>
             <span className={styles.location}>
-              Fort Mason Center for Arts & Culture
+              {eventData?.venue || 'Venue'}
             </span>
           </div>
         </div>
         
-        {/* Content Section */}
+        {/* Content Section - 160 characters event summary */}
         <div className={styles.contentSection}>
           <div className={styles.description}>
             <Typography variant="body-md" color="neutral-700">
-              A lively coffee showcase to taste from 75+ roasters, discover new brewing trends, and enjoy a lively social atmosphere.
+              {truncateDescription(eventData?.description || '160 characters event summary. 160 characters event summary. 160 characters event summary.')}
             </Typography>
           </div>
         </div>
         
         {/* Footer Section */}
         <div className={styles.footer}>
-          <div className={styles.priceButtonWrapper}>
-            <Button variant="primary" className={styles.priceButton}>
-              From $24
-            </Button>
-          </div>
-          <div className={styles.actionButtons}>
-            <button
-              className={styles.iconButton}
-              aria-label="Save event"
-              type="button"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              </svg>
-            </button>
-            <button
-              className={styles.iconButton}
-              aria-label="Share event"
-              type="button"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 8a3 3 0 1 0-2.83-2M9 14a3 3 0 1 0 2.83 2M13.41 10.59a3 3 0 1 1 4.24 4.24M6.41 13.59a3 3 0 1 1-4.24-4.24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              </svg>
+            <div className={styles.priceButtonWrapper}>
+              <Button variant="primary" className={styles.priceButton}>
+                From $-
+              </Button>
+            </div>
+            <div className={styles.actionButtons}>
+              <button
+                className={styles.iconButton}
+                aria-label="Save event"
+                type="button"
+              >
+                <svg width="24" height="24" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M11.7039 6.54237C11.4332 7.15291 10.5668 7.15291 10.2961 6.54237L9.17095 4.00472C8.65132 2.82999 7.43966 2 5.92022 2C4.85362 2 3.7053 2.42821 2.89693 3.37669C2.01399 4.41267 1.7457 5.8521 2.26001 7.16517C2.61386 8.06858 3.26491 9.07577 3.80579 9.86126C5.04238 11.6571 7.16263 14.0644 9.03937 16.0816C9.76739 16.8642 10.4453 17.5738 11 18.1468C11.5547 17.5738 12.2326 16.8642 12.9606 16.0816C14.8374 14.0644 16.9576 11.6571 18.1942 9.86127C18.7351 9.07577 19.3861 8.06858 19.74 7.16517C20.2543 5.8521 19.986 4.41267 19.1031 3.37669C18.2947 2.42821 17.1464 2 16.0798 2C14.5603 2 13.3487 2.82999 12.829 4.00472L11.7039 6.54237ZM12.4022 19.5738C12.0346 19.9533 11.7222 20.2718 11.4862 20.5108C11.1779 20.8232 11 21 11 21C11 21 10.8221 20.8232 10.5138 20.5108C10.2778 20.2718 9.96542 19.9533 9.59783 19.5738C7.61304 17.5247 4.01917 13.6976 2.15855 10.9955C1.61622 10.2079 0.843994 9.03384 0.397768 7.89459C-0.391756 5.87888 0.0247803 3.66335 1.37476 2.07938C2.6096 0.630518 4.34345 0 5.92022 0C7.37996 0 8.70787 0.520901 9.69763 1.40636C10.2482 1.89894 10.6942 2.50435 11 3.19565C11.3058 2.50435 11.7518 1.89894 12.3024 1.40636C13.2921 0.520902 14.62 0 16.0798 0C17.6565 0 19.3904 0.630516 20.6252 2.07938C21.9752 3.66335 22.3918 5.87887 21.6022 7.89459C21.156 9.03383 20.3838 10.2079 19.8415 10.9955C17.9808 13.6976 14.387 17.5247 12.4022 19.5738Z" fill="currentColor"/>
+                </svg>
+              </button>
+              <button
+                className={styles.iconButton}
+                aria-label="Share event"
+                type="button"
+              >
+                <svg width="24" height="24" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9.99954 0L16.9991 6.99954L15.5849 8.41376L11 3.82889L11 16H9L9 3.82797L4.41421 8.41376L3 6.99954L9.99954 0Z" fill="currentColor"/>
+                  <path d="M0 18V11H2V18C2 18.5523 2.44772 19 3 19H17C17.5523 19 18 18.5523 18 18V11H20V18C20 19.6569 18.6569 21 17 21H3C1.34315 21 0 19.6569 0 18Z" fill="currentColor"/>
+                </svg>
+              </button>
+            </div>
+            <button className={styles.avatarButton} aria-label="Profile" type="button">
+              {displayLogo ? (
+                <img 
+                  src={displayLogo} 
+                  alt="Organizer logo"
+                  className={styles.organizerLogo}
+                />
+              ) : (
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="20" r="20" fill="#E5E5E5"/>
+                  <circle cx="20" cy="15" r="5" fill="#999999"/>
+                  <ellipse cx="20" cy="30" rx="8" ry="5" fill="#999999"/>
+                </svg>
+              )}
             </button>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

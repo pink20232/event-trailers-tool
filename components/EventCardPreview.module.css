@@ -2,7 +2,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 24px;
+  padding: 60px 24px;
   background: var(--color-neutral-50, #f5f5f5);
   border-radius: 8px;
 }
@@ -10,29 +10,41 @@
 .eventCard {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  max-width: 361px;
+  gap: 2px; /* Vertical margin between sections */
+  max-width: 361px; /* Match mediaFrame width for alignment */
   width: 100%;
   background: white;
   border-radius: 16px; /* radius/radius-lg */
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05); /* Product/elevation-base */
+  box-shadow: 0px 0px 0px 0.982px rgba(0, 0, 0, 0.03), 0px 1.963px 3.927px 0px rgba(0, 0, 0, 0.03); /* utility/shadow-layer-03 */
   overflow: hidden;
+  padding: 0;
 }
 
 /* Media Frame Section */
 .mediaFrame {
   position: relative;
-  width: 100%;
+  width: 361px; /* Match Figma width */
+  padding-bottom: 100%; /* 1:1 aspect ratio using padding-bottom technique */
   border-radius: 16px 16px 0 0;
   overflow: hidden;
+  flex-shrink: 0; /* Prevent shrinking */
+  height: 0; /* Required for padding-bottom aspect ratio */
 }
 
 .videoContainer {
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%; /* 1:1 aspect ratio */
-  background: var(--color-neutral-100, #e5e5e5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Make container 1:1 ratio - width matches height (311px × 311px) */
+  height: 100%; /* 311px - this determines the size */
+  aspect-ratio: 1 / 1; /* Ensure 1:1 aspect ratio - width will be 311px to match height */
+  max-width: 100%; /* Don't exceed parent width */
+  max-height: 100%; /* Don't exceed parent height */
+  background: transparent; /* Transparent - placeholder will show its own background */
   overflow: hidden;
+  display: flex;
+  align-items: flex-start; /* Align to top */
+  justify-content: flex-start; /* Left align */
 }
 
 .videoFrame {
@@ -46,13 +58,13 @@
   border: none;
 }
 
-/* Gradient Overlay */
+/* Gradient Overlay (Scrim) */
 .gradientOverlay {
   position: absolute;
-  bottom: 0;
+  bottom: 0; /* Align to bottom of media container - no gaps */
   left: 0;
-  width: 100%;
-  height: 149px;
+  width: 100%; /* Full width of mediaFrame */
+  height: 41.27%; /* 149px / 361px = 41.27% */
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 1) 0%,
@@ -60,14 +72,14 @@
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
-  z-index: 1;
+  z-index: 2; /* Above video/placeholder, below text overlays */
 }
 
 /* Icon Buttons */
 .muteButton {
   position: absolute;
   top: 12px;
-  right: 12px;
+  right: 12px; /* Position from right - top-right corner */
   z-index: 10;
   width: 40px;
   height: 40px;
@@ -98,26 +110,43 @@
   outline-offset: 2px;
 }
 
+/* Play/Pause button - circular shape override for global button styles */
 .playPauseButton {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 50% !important; /* Center vertically in mediaFrame */
+  /* Center horizontally relative to .videoContainer (311px wide, left-aligned) */
+  /* .videoContainer center is at 155.5px (half of 311px) from left edge of .mediaFrame */
+  left: calc(311px / 2) !important; /* 155.5px - center of .videoContainer */
+  transform: translate(-50%, -50%) !important; /* Center both horizontally and vertically */
   z-index: 10;
-  width: 56px;
-  height: 56px;
-  border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.5);
+  width: 56px !important; /* Force exact width */
+  height: 56px !important; /* Force exact height - override global 40px */
+  min-width: 56px !important; /* Prevent shrinking */
+  min-height: 56px !important; /* Prevent shrinking - override global 40px */
+  max-width: 56px !important; /* Prevent expanding */
+  max-height: 56px !important; /* Prevent expanding - override global 40px */
+  aspect-ratio: 1 / 1 !important; /* Ensure circular shape */
+  border-radius: 9999px !important; /* Fully circular */
+  background: rgba(0, 0, 0, 0.5) !important;
   backdrop-filter: blur(4px);
-  border: none;
+  border: none !important;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important; /* Force flex display */
+  align-items: center !important; /* Force vertical centering */
+  justify-content: center !important; /* Force horizontal centering */
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.25), 0px 4px 8px rgba(0, 0, 0, 0.25);
   transition: background 0.2s, opacity 0.2s;
-  padding: 0;
+  padding: 0 !important; /* Remove all padding - override global padding */
   opacity: 0.9;
+  margin: 0 !important; /* Reset any margins */
+  right: auto !important; /* Ensure right is not set */
+  bottom: auto !important; /* Ensure bottom is not set */
+  text-align: center; /* Center text content */
+  line-height: 1; /* Remove line-height spacing */
+  box-sizing: border-box; /* Include border in width/height */
+  font-size: inherit !important; /* Override global font-size */
+  font-weight: inherit !important; /* Override global font-weight */
+  font-family: inherit !important; /* Override global font-family */
 }
 
 .playPauseButton:hover {
@@ -133,40 +162,10 @@
 .playPauseButton svg {
   width: 24px;
   height: 24px;
-}
-
-.swapButton {
-  position: absolute;
-  top: 717px;
-  left: 465px;
-  z-index: 10;
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.25), 0px 4px 8px rgba(0, 0, 0, 0.25);
-  transition: background 0.2s;
-  padding: 0;
-}
-
-.swapButton svg {
-  width: 20px; /* icon/icon-size-md */
-  height: 20px; /* icon/icon-size-md */
-}
-
-.swapButton:hover {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.swapButton:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
+  display: block; /* Remove any inline spacing */
+  margin: 0; /* Remove any margins */
+  padding: 0; /* Remove any padding */
+  flex-shrink: 0; /* Prevent SVG from shrinking */
 }
 
 /* Going Fast Badge */
@@ -214,18 +213,18 @@
 /* Text Overlays */
 .titleOverlay {
   position: absolute;
-  bottom: 68px; /* Equal spacing: 20px base + 2*24px gaps = 68px */
-  left: 16px; /* layout/space-md */
-  right: 16px; /* layout/space-md */
+  top: 74.24%; /* 268px / 361px = 74.24% from top */
+  left: 4.43%; /* 16px / 361px = 4.43% */
   z-index: 5;
-  max-width: 310px; /* Match Figma width constraint */
+  max-width: 85.87%; /* 310px / 361px = 85.87% */
+  width: 310px; /* Default width */
 }
 
 .eventTitle {
   color: #ffffff; /* Colours/white */
   text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4), 0px 0px 2px rgba(0, 0, 0, 0.4), 0px 1px 1px rgba(0, 0, 0, 0.15); /* text-shadow from Figma */
   margin: 0;
-  margin-bottom: 0px;
+  margin-bottom: 2px; /* 2px vertical margin to date/time */
   font-size: 21px; /* font/font-size-base-xl */
   font-weight: 500; /* type/font-style-bold (Medium) */
   line-height: 125%; /* Product/Head XL lineHeight */
@@ -235,13 +234,16 @@
 
 .dateTimeOverlay {
   position: absolute;
-  bottom: 44px; /* Equal spacing: 20px base + 24px gap = 44px */
-  left: 16px; /* layout/space-md */
+  top: calc(74.24% + 26px + 2px); /* Title top + title height (26px) + 2px margin */
+  left: 4.43%; /* 16px / 361px = 4.43% */
   z-index: 5;
   display: flex;
   align-items: center;
   gap: 4px; /* layout/horizontal-gap-xs */
-  max-width: 283px; /* Match Figma width constraint */
+  max-width: 78.39%; /* 283px / 361px = 78.39% */
+  width: 283px; /* Default width */
+  height: 20px; /* Match Figma height */
+  margin-bottom: 2px; /* 2px vertical margin to venue */
 }
 
 .dateTime {
@@ -257,22 +259,24 @@
 }
 
 .dot {
-  color: #d9d9d9; /* Grey/grey-100 */
-  font-size: 15px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 2px;
-  line-height: 1;
+  width: 3px;
+  height: 3px;
+  flex-shrink: 0;
+  display: inline-block;
   vertical-align: middle;
+  color: rgba(255, 255, 255, 0.8); /* White dot for date/time separator */
 }
 
 .locationOverlay {
   position: absolute;
-  bottom: 20px; /* Base position: 20px from bottom, equal 24px gaps between text elements */
-  left: 16px; /* layout/space-md */
+  top: calc(74.24% + 26px + 2px + 20px + 2px); /* Title top + title height + 2px + date/time height + 2px margin */
+  left: 4.43%; /* 16px / 361px = 4.43% */
   z-index: 5;
-  max-width: 283px; /* Match Figma width constraint */
+  max-width: 78.39%; /* 283px / 361px = 78.39% */
+  width: 283px; /* Default width */
+  height: 20px; /* Match Figma height */
+  display: flex;
+  align-items: center;
 }
 
 .location {
@@ -287,23 +291,45 @@
 
 /* Content Section */
 .contentSection {
-  padding: 12px 16px; /* layout/space-3xs vertical, layout/space-md horizontal */
+  padding: 0 16px; /* layout/space-md horizontal, no vertical padding */
   background: white; /* Colours/white */
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* layout/space-3xs */
+  /* Center content - used as reference for play button alignment */
+  --content-center: calc(16px + (100% - 32px) / 2); /* 16px padding + half of content width */
+}
+
+/* Description text - 160 characters event summary */
+.contentSection .description {
+  padding: 0;
+  margin: 0;
 }
 
 .description {
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  -webkit-box-orient: vertical;
 }
 
+/* Target Typography components with variant="body-md" and color="neutral-700" */
+.description :global([class*="Typography"]),
 .description :global(p) {
   color: #3d3f43; /* core/core-fg-secondary */
-  font-size: 15px; /* font/font-size-base-md */
-  line-height: 1.333; /* Product/Body MD lineHeight */
+  font-size: 15px !important; /* font/font-size-base-md - override Marmalade default 1rem */
+  line-height: 133.3%; /* Product/Body MD lineHeight */
   letter-spacing: 0.15px; /* Product/Body MD letterSpacing */
   font-family: 'Founders Grotesk R', 'Inter', sans-serif; /* type/font-family-base */
   font-weight: 400; /* type/font-style-normal (Regular) */
-  margin-top: 12px;
-  margin-bottom: 12px;
+  padding-top: 12px;
+  padding-bottom: 0px;
+  margin-top: 0px;
+  margin-bottom: 16px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Footer Section */
@@ -311,15 +337,107 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 16px; /* layout/space-md */
+  padding: 12px 16px; /* layout/space-md */
   background: white; /* Colours/white */
-  gap: 8px; /* layout/space-xs */
+  width: 311px; /* Match eventCard width */
+}
+
+/* Price button and action buttons container */
+.footer > div:first-child {
+  display: flex;
+  gap: 8px; /* layout/space-xs - gap between price button and icon buttons */
+  align-items: center;
 }
 
 .actionButtons {
   display: flex;
-  gap: 10px; /* layout/space-xs (8px) but Figma shows 10px gap between icons */
+  gap: 10px; /* gap between icon buttons per Figma */
   align-items: center;
+}
+
+.iconButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #161719; /* Gen 3 icon color */
+}
+
+.iconButton svg {
+  width: 24px; /* icon/icon-size-lg */
+  height: 24px; /* icon/icon-size-lg */
+  color: inherit; /* Inherit color from button */
+}
+
+.iconButton svg path {
+  fill: currentColor; /* Icons use fill, not stroke */
+}
+
+.iconButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.avatarButton {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarButton svg {
+  overflow: visible;
+  height: 40px;
+  width: 40px;
+  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.avatarButton svg circle:first-child {
+  stroke: rgba(232, 232, 231, 1);
+  stroke-width: 1px;
+}
+
+.avatarButton img {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 9999px;
+  display: block;
+}
+
+.organizerLogo {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 9999px;
+  display: block;
 }
 
 /* Price button wrapper */
@@ -327,27 +445,43 @@
   display: inline-block;
 }
 
-/* Button styling to match Figma design - target Marmalade Button component */
+/* Gen 3 MD base button styling */
 .priceButtonWrapper :global(button),
 .priceButtonWrapper :global(button[class*="Button"]),
 .footer .priceButtonWrapper :global(button) {
-  background-color: rgba(0, 0, 0, 1) !important; /* Changed from rgb(37, 99, 235) to black */
-  background: rgba(0, 0, 0, 1) !important; /* Ensure background is also set */
-  color: #ffffff !important; /* core/core-action-content */
-  font-size: 13.5px !important; /* font/font-size-base-sm */
-  font-weight: 500 !important; /* type/font-style-bold (Medium) */
+  background-color: #161719 !important; /* Gen 3 primary button base */
+  background: #161719 !important;
+  color: #ffffff !important; /* Gen 3 primary button foreground */
+  font-size: 13.5px !important; /* font/font-size-base-sm per Figma */
+  font-weight: 500 !important; /* Medium weight */
   line-height: 1.333 !important; /* Product/Action SM lineHeight */
   letter-spacing: 0.27px !important; /* Product/Action SM letterSpacing */
-  border-radius: 9999px !important; /* radius/radius-round */
+  border-radius: 9999px !important; /* Fully rounded */
   padding: 10px 16px !important; /* vertical: 10px, horizontal: layout/space-md */
   height: 40px !important; /* Fixed height to match design */
-  font-family: 'Founders Grotesk R' !important; /* type/font-family-base */
+  font-family: 'Founders Grotesk R' !important;
   min-width: 64px !important;
   max-width: 316px !important;
   border: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* Gen 3 hover state */
+.priceButtonWrapper :global(button):hover,
+.priceButtonWrapper :global(button[class*="Button"]):hover,
+.footer .priceButtonWrapper :global(button):hover {
+  background-color: #25272b !important; /* Gen 3 primary button hover */
+  background: #25272b !important;
+}
+
+/* Gen 3 press state */
+.priceButtonWrapper :global(button):active,
+.priceButtonWrapper :global(button[class*="Button"]):active,
+.footer .priceButtonWrapper :global(button):active {
+  background-color: #3d3f43 !important; /* Gen 3 primary button press */
+  background: #3d3f43 !important;
 }
 
 .iconButton {
@@ -369,9 +503,11 @@
 .iconButton svg {
   width: 24px; /* icon/icon-size-lg */
   height: 24px; /* icon/icon-size-lg */
-  stroke-width: 2;
-  stroke: currentColor;
-  fill: none;
+  color: inherit; /* Inherit color from button */
+}
+
+.iconButton svg path {
+  fill: currentColor; /* Icons use fill, not stroke */
 }
 
 .iconButton:hover {
@@ -384,23 +520,46 @@
 }
 
 .placeholder {
+  position: relative; /* Changed from absolute to work with flex container */
+  /* Fill the container completely - both are 1:1 (311px × 311px) */
+  width: 100%; /* Fill container width (311px) */
+  height: 100%; /* Fill container height (311px) */
+  aspect-ratio: 1 / 1; /* Ensure 1:1 aspect ratio */
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 400px;
-  background: var(--color-neutral-100, #e5e5e5);
-  border-radius: 8px;
-  border: 2px dashed var(--color-neutral-300, #d4d4d4);
+  background: #eaeaea; /* brand-cool-gray-light */
+  z-index: 0; /* Behind scrim and overlays */
 }
 
 @media (max-width: 768px) {
   .previewContainer {
-    padding: 16px;
+    padding: 0 !important; /* Remove all padding in mobile to maximize visible area */
+    width: 100% !important;
   }
   
   .eventCard {
-    max-width: 100%;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 0; /* Remove border radius in mobile to fill screen */
+  }
+  
+  /* Ensure mediaFrame maintains exact 1:1 ratio in mobile */
+  .mediaFrame {
+    width: 100% !important; /* Fill full width of screen */
+    height: 0 !important; /* Required for padding-bottom technique */
+    padding-bottom: 100% !important; /* 1:1 aspect ratio - height equals width */
+    border-radius: 0; /* Remove top border radius in mobile */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  /* Ensure videoContainer fills the 1:1 mediaFrame */
+  .videoContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 }
 
