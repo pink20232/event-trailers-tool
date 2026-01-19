@@ -13,16 +13,19 @@ if (!process.env.GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// Configure Git to use HTTPS instead of SSH
+// Configure Git to use HTTPS instead of SSH (must be done first)
 try {
-  execSync('git config --global url."https://".insteadOf ssh://', { stdio: 'ignore' });
-  execSync('git config --global url."https://github.com/".insteadOf git@github.com:', { stdio: 'ignore' });
+  execSync('git config --global url."https://".insteadOf ssh://', { stdio: 'inherit' });
+  execSync('git config --global url."https://github.com/".insteadOf git@github.com:', { stdio: 'inherit' });
   console.log('✓ Configured Git to use HTTPS');
 } catch (error) {
   console.warn('Could not configure Git:', error.message);
 }
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
+const nodeModulesPath = path.join(__dirname, '..', 'node_modules');
+const marmaladePath = path.join(nodeModulesPath, '@eventbrite', 'marmalade');
+
 console.log('Reading package.json from:', packageJsonPath);
 
 if (!fs.existsSync(packageJsonPath)) {
@@ -32,29 +35,50 @@ if (!fs.existsSync(packageJsonPath)) {
 
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-// Try common repository paths - update this with the correct one
+// Try common repository paths
 const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
-// Use HTTPS format explicitly - npm will use this format
+// Use HTTPS format with token embedded
 const gitUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
 
 console.log(`Installing @eventbrite/marmalade from ${repoUrl}...`);
 console.log('Git URL (token hidden):', `https://***@github.com/${repoUrl}.git`);
 
+// Create node_modules directories if they don't exist
+if (!fs.existsSync(nodeModulesPath)) {
+  fs.mkdirSync(nodeModulesPath, { recursive: true });
+}
+if (!fs.existsSync(path.join(nodeModulesPath, '@eventbrite'))) {
+  fs.mkdirSync(path.join(nodeModulesPath, '@eventbrite'), { recursive: true });
+}
+
+// Install the package directly using git clone, then npm install it
 try {
-  // Update package.json to use the authenticated URL
-  const originalDep = packageJson.dependencies['@eventbrite/marmalade'];
-  console.log('Original dependency:', originalDep);
+  console.log('Cloning repository...');
+  execSync(`git clone --depth 1 ${gitUrl} ${marmaladePath}`, {
+    stdio: 'inherit',
+    cwd: path.join(__dirname, '..')
+  });
   
-  // Use git+https format to ensure npm uses HTTPS
-  packageJson.dependencies['@eventbrite/marmalade'] = `git+${gitUrl}`;
+  console.log('✓ Successfully cloned marmalade package');
+  
+  // Update package.json to reference the local installation
+  packageJson.dependencies['@eventbrite/marmalade'] = `file:${marmaladePath}`;
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   
-  console.log('✓ Package.json updated with authenticated Git URL');
-  console.log('New dependency:', `git+https://***@github.com/${repoUrl}.git`);
+  console.log('✓ Package.json updated to use local installation');
 } catch (error) {
-  console.error('✗ Failed to update package.json:', error.message);
-  console.error(error.stack);
-  process.exit(1);
+  console.error('✗ Failed to clone repository:', error.message);
+  
+  // Fallback: Update package.json with HTTPS URL and let npm handle it
+  console.log('Falling back to npm install method...');
+  try {
+    packageJson.dependencies['@eventbrite/marmalade'] = `git+${gitUrl}`;
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
+    console.log('✓ Package.json updated with Git URL (npm will install)');
+  } catch (fallbackError) {
+    console.error('✗ Failed to update package.json:', fallbackError.message);
+    process.exit(1);
+  }
 }
 
 console.log('=== Preinstall script completed ===');
