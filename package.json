@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "preinstall": "node scripts/preinstall.js"
+    "preinstall": "node scripts/preinstall.js",
+    "install:marmalade": "node scripts/install-marmalade.js",
+    "postinstall": "npm run install:marmalade || true"
   },
   "dependencies": {
     "@eventbrite/marmalade": "git+https://github.com/eventbrite/design-ops-ds.git",
