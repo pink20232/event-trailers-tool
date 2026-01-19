@@ -13,6 +13,15 @@ if (!process.env.GITHUB_TOKEN) {
   process.exit(1);
 }
 
+// Configure Git to use HTTPS instead of SSH
+try {
+  execSync('git config --global url."https://".insteadOf ssh://', { stdio: 'ignore' });
+  execSync('git config --global url."https://github.com/".insteadOf git@github.com:', { stdio: 'ignore' });
+  console.log('✓ Configured Git to use HTTPS');
+} catch (error) {
+  console.warn('Could not configure Git:', error.message);
+}
+
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 console.log('Reading package.json from:', packageJsonPath);
 
@@ -25,21 +34,23 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // Try common repository paths - update this with the correct one
 const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
-const gitUrl = `git+https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
+// Use HTTPS format explicitly - npm will use this format
+const gitUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
 
 console.log(`Installing @eventbrite/marmalade from ${repoUrl}...`);
-console.log('Git URL (token hidden):', `git+https://***@github.com/${repoUrl}.git`);
+console.log('Git URL (token hidden):', `https://***@github.com/${repoUrl}.git`);
 
 try {
   // Update package.json to use the authenticated URL
   const originalDep = packageJson.dependencies['@eventbrite/marmalade'];
   console.log('Original dependency:', originalDep);
   
-  packageJson.dependencies['@eventbrite/marmalade'] = gitUrl;
+  // Use git+https format to ensure npm uses HTTPS
+  packageJson.dependencies['@eventbrite/marmalade'] = `git+${gitUrl}`;
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   
   console.log('✓ Package.json updated with authenticated Git URL');
-  console.log('New dependency:', gitUrl.replace(process.env.GITHUB_TOKEN, '***'));
+  console.log('New dependency:', `git+https://***@github.com/${repoUrl}.git`);
 } catch (error) {
   console.error('✗ Failed to update package.json:', error.message);
   console.error(error.stack);
