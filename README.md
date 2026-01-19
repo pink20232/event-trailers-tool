@@ -1,6 +1,6 @@
 # Event Card Preview Tool
 
-A desktop web tool to simulate and preview event card videos. Upload videos from YouTube, TikTok, or Instagram Reels and preview how they'll appear in a 1:1 aspect ratio event card format.
+A desktop web tool to simulate and preview event card videos.  Upload videos from YouTube, TikTok, or Instagram Reels and preview how they'll appear in a 1:1 aspect ratio event card format.
 
 ## Features
 
