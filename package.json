@@ -6,12 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "preinstall": "node scripts/preinstall.js",
-    "install:marmalade": "node scripts/install-marmalade.js",
-    "postinstall": "npm run install:marmalade || true"
+    "lint": "next lint"
   },
   "dependencies": {
+    "@eventbrite/marmalade": "file:./packages/@eventbrite/marmalade",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "next": "^14.0.0"
