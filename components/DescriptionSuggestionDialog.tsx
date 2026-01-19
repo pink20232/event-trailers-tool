@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button, Typography, Stack } from '@eventbrite/marmalade';
+import { Button, Typography, Stack } from '@eventbrite/marmalade';
 import styles from './DescriptionSuggestionDialog.module.css';
 
 interface DescriptionSuggestionDialogProps {
@@ -124,8 +124,8 @@ export const DescriptionSuggestionDialog: React.FC<DescriptionSuggestionDialogPr
           <Stack space="spacing-md">
             {/* Header */}
             <div className={styles.header}>
-              <Typography variant="heading-sm" id="suggestion-dialog-title">
-                Enhancement
+              <Typography variant="heading-sm">
+                <span id="suggestion-dialog-title">Enhancement</span>
               </Typography>
               <button
                 className={styles.closeButton}

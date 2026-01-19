@@ -136,23 +136,6 @@ const PublishButtonContainer: React.FC<{
 };
 
 export default function Home() {
-  // #region agent log
-  useEffect(() => {
-    console.log('[DEBUG] Home component mounted', { 
-      styles, 
-      hasStyles: !!styles,
-      windowDefined: typeof window !== 'undefined',
-      documentDefined: typeof document !== 'undefined',
-      stylesMain: styles?.main,
-      ReactVersion: React.version
-    });
-    // Test if we can access DOM
-    const testDiv = document.createElement('div');
-    testDiv.textContent = 'TEST';
-    console.log('[DEBUG] DOM test:', testDiv);
-    fetch('http://127.0.0.1:7242/ingest/36e5ce4c-bb3e-4faa-9ddb-ae9f273cfec9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:32',message:'Home component mounted',data:{timestamp:Date.now(),windowDefined:typeof window!=='undefined',documentDefined:typeof document!=='undefined'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch((e)=>console.error('[DEBUG] Log fetch failed:', e));
-  }, []);
-  // #endregion
   
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [startTime, setStartTime] = useState(0);
@@ -165,11 +148,6 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // #region agent log
-  useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/36e5ce4c-bb3e-4faa-9ddb-ae9f273cfec9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:42',message:'State initialized',data:{hasVideoInfo:!!videoInfo,viewMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  }, [videoInfo, viewMode]);
-  // #endregion
 
   const handleVideoLoad = (info: VideoInfo) => {
     setVideoInfo(info);
@@ -228,75 +206,6 @@ export default function Home() {
     }
   };
 
-  // #region agent log
-  console.log('[DEBUG] About to render', { 
-    hasStyles: !!styles, 
-    stylesMain: styles?.main,
-    windowWidth: typeof window !== 'undefined' ? window.innerWidth : 0,
-    videoInfo,
-    eventData,
-    hasErrorBoundary: !!ErrorBoundary
-  });
-  // #endregion
-  
-  // #region agent log
-  useEffect(() => {
-    const checkVisibility = () => {
-      const greenBanner = document.getElementById('plain-html-test');
-      const yellowBanner = document.getElementById('debug-yellow-banner') || document.querySelector('[style*="yellow"]');
-      const mainEl = document.querySelector('main');
-      const sidebar = document.querySelector('[class*="EventSidebar"]');
-      const url = typeof window !== 'undefined' ? window.location.href : 'server';
-      
-      const logData = {
-        url: url,
-        hasStyles: !!styles,
-        ErrorBoundary: !!ErrorBoundary,
-        EventSidebar: typeof EventSidebar,
-        MobileMockup: typeof MobileMockup,
-        windowDefined: typeof window !== 'undefined',
-        documentDefined: typeof document !== 'undefined',
-        bodyExists: typeof document !== 'undefined' ? !!document.body : false,
-        mainExists: !!mainEl,
-        greenBannerExists: !!greenBanner,
-        yellowBannerExists: !!yellowBanner,
-        sidebarExists: !!sidebar,
-        greenBannerVisible: greenBanner ? window.getComputedStyle(greenBanner).display !== 'none' : false,
-        yellowBannerVisible: yellowBanner ? window.getComputedStyle(yellowBanner).display !== 'none' : false,
-        mainVisible: mainEl ? window.getComputedStyle(mainEl).display !== 'none' : false,
-        sidebarVisible: sidebar ? window.getComputedStyle(sidebar).display !== 'none' : false,
-        bodyHeight: typeof document !== 'undefined' ? document.body.scrollHeight : 0,
-        windowHeight: typeof window !== 'undefined' ? window.innerHeight : 0,
-        bodyScrollTop: typeof document !== 'undefined' ? document.body.scrollTop : 0,
-        windowScrollY: typeof window !== 'undefined' ? window.scrollY : 0,
-        bodyDisplay: typeof document !== 'undefined' && document.body ? window.getComputedStyle(document.body).display : 'N/A'
-      };
-      
-      console.log('[DEBUG] Visibility check', logData);
-      fetch('http://127.0.0.1:7242/ingest/36e5ce4c-bb3e-4faa-9ddb-ae9f273cfec9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:111',message:'Visibility check',data:logData,timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'H'})}).catch(()=>{});
-    };
-    
-    // Check immediately
-    checkVisibility();
-    
-    // Check after delays to catch hydration
-    setTimeout(checkVisibility, 100);
-    setTimeout(checkVisibility, 500);
-    setTimeout(checkVisibility, 1000);
-    setTimeout(checkVisibility, 2000);
-  }, []);
-  // #endregion
-  
-  // #region agent log
-  console.log('[DEBUG] About to return JSX', { 
-    hasStyles: !!styles, 
-    stylesMain: styles?.main,
-    videoInfo: !!videoInfo,
-    eventData: !!eventData,
-    hasErrorBoundary: !!ErrorBoundary
-  });
-  fetch('http://127.0.0.1:7242/ingest/36e5ce4c-bb3e-4faa-9ddb-ae9f273cfec9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:120',message:'About to return JSX',data:{hasStyles:!!styles,stylesMain:styles?.main,videoInfo:!!videoInfo,eventData:!!eventData,hasErrorBoundary:!!ErrorBoundary},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'E'})}).catch(()=>{});
-  // #endregion
   
   try {
     return (
