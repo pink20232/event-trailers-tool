@@ -27,7 +27,7 @@ try {
   // Ignore errors
 }
 
-const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
+const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/marmalade';
 // Use HTTPS format explicitly - npm will use this format
 const gitUrl = `https://${process.env.GITHUB_TOKEN}@github.com/${repoUrl}.git`;
 

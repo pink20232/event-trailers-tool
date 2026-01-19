@@ -47,7 +47,7 @@ if (!fs.existsSync(packageJsonPath)) {
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // Repository URL
-const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/design-ops-ds';
+const repoUrl = process.env.MARMALADE_REPO || 'eventbrite/marmalade';
 // Use HTTPS format with token embedded
 const gitUrl = `https://${githubToken}@github.com/${repoUrl}.git`;
 
