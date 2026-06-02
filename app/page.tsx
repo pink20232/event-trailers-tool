@@ -251,8 +251,36 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Center — phone mockup + trailer editor below */}
+          {/* Center — Form (616px) */}
           <div className={styles.centerPanel}>
+            <div className={styles.formHeader}>
+              <h1 className={styles.formHeading}>Create event discovery card</h1>
+              <p className={styles.formSubheading}>Preview how your event appears in the discovery feed before publishing.</p>
+            </div>
+            <EventSidebar
+              eventData={eventData}
+              onEventDataChange={(newData) => {
+                setEventData(newData);
+                setPreviewLogo(newData.organizerLogo);
+                if (!newData.organizerLogo) {
+                  setLogoAdjust({ scale: 1, x: 0, y: 0 });
+                  setIsLogoAdjusting(false);
+                }
+              }}
+              onVideoLoad={handleVideoLoad}
+              onVideoRemove={handleVideoRemove}
+              videoInfo={videoInfo}
+              embeddingBlocked={embeddingBlocked}
+            />
+            <div className={styles.nextStepRow}>
+              <button className={styles.nextStepBtn} type="button">
+                Next step →
+              </button>
+            </div>
+          </div>
+
+          {/* Right — Phone preview */}
+          <div className={styles.phonePanel}>
             <MobileMockup isMobile>
               <EventCardPreview
                 videoInfo={videoInfo}
@@ -284,26 +312,6 @@ export default function Home() {
                 suggestedStartTime={suggestedStartTime}
               />
             </div>
-          </div>
-
-          {/* Right — Form panel */}
-          <div className={styles.formPanelOuter}>
-            <EventSidebar
-              eventData={eventData}
-              onEventDataChange={(newData) => {
-                setEventData(newData);
-                setPreviewLogo(newData.organizerLogo);
-                // Reset adjust when logo is removed
-                if (!newData.organizerLogo) {
-                  setLogoAdjust({ scale: 1, x: 0, y: 0 });
-                  setIsLogoAdjusting(false);
-                }
-              }}
-              onVideoLoad={handleVideoLoad}
-              onVideoRemove={handleVideoRemove}
-              videoInfo={videoInfo}
-              embeddingBlocked={embeddingBlocked}
-            />
           </div>
         </div>
       </main>

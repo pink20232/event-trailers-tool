@@ -162,18 +162,23 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
 
       {/* ── Analyzing state ──────────────────────────────── */}
       {videoInfo && isAnalyzing && (
-        <div className={styles.resultsHeader}>
-          <p className={styles.title}>Trailer</p>
-          <div className={styles.scrubberRow}>
-            <div className={styles.scrubberTrack}>
-              {/* Rainbow fills the full track while scanning */}
-              <div className={styles.analyzingFill} />
+        <>
+          <div className={styles.resultsHeader}>
+            <p className={styles.title}>Trailer</p>
+            <div className={styles.scrubberRow}>
+              <div className={styles.scrubberTrack}>
+                {/* Rainbow fills the full track while scanning */}
+                <div className={styles.analyzingFill} />
+              </div>
+              <span className={`${styles.scrubberTime} ${styles.scrubberTimeDim}`}>
+                {formatTime(duration)}
+              </span>
             </div>
-            <span className={`${styles.scrubberTime} ${styles.scrubberTimeDim}`}>
-              {formatTime(duration)}
-            </span>
           </div>
-        </div>
+          <p className={styles.analyzingCopy}>
+            Analyzing video and selecting the recommended moment…
+          </p>
+        </>
       )}
 
       {/* ── Results state ────────────────────────────────── */}
