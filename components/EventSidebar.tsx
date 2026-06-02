@@ -96,8 +96,6 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
 
   return (
     <div className={styles.formPanel}>
-      <h2 className={styles.panelTitle}>Create Event Discovery Card</h2>
-
       {/* General Info */}
       <div className={styles.card}>
         <div className={styles.section}>
@@ -319,14 +317,6 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
           onChange={handleLogoUpload}
           style={{ display: 'none' }}
         />
-      </div>
-
-      {/* Next Step Button */}
-      <div className={styles.nextStepRow}>
-        <button className={styles.nextStepBtn} type="button">
-          Next step
-          <ArrowRightIcon />
-        </button>
       </div>
 
       {/* Event Summary modal */}
