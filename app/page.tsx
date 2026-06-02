@@ -1,174 +1,141 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Container, Stack, Button, Typography } from '@eventbrite/marmalade';
-import { VideoUrlInput } from '@/components/VideoUrlInput';
 import { EventCardPreview } from '@/components/EventCardPreview';
 import { VideoEditor } from '@/components/VideoEditor';
 import { EventSidebar, type EventData } from '@/components/EventSidebar';
 import { MobileMockup } from '@/components/MobileMockup';
-import { ViewToggle } from '@/components/ViewToggle';
 import { type VideoInfo } from '@/lib/videoUtils';
+import { type AnalysisReasons } from '@/app/api/analyze-video/route';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { LogoAdjuster, type LogoAdjust } from '@/components/LogoAdjuster';
 import styles from './page.module.css';
 
-const initialEventData: EventData = {
-  title: '',
-  date: '',
-  time: '',
-  venue: '',
-  description: '',
-  organizerLogo: null,
-};
+function getDefaultEventData(): EventData {
+  const now = new Date();
 
-// Component to force black color on publish button
-const PublishButtonContainer: React.FC<{
-  isFormValid: boolean;
-  handlePublish: () => void;
-  className: string;
-  buttonClassName: string;
-}> = ({ isFormValid, handlePublish, className, buttonClassName }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const formatDate = (d: Date) =>
+    `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}/${d.getFullYear()}`;
 
-  useEffect(() => {
-    const applyStyles = () => {
-      if (containerRef.current) {
-        const button = containerRef.current.querySelector('button');
-        if (button) {
-          // Force black background
-          button.style.setProperty('background-color', 'rgba(0, 0, 0, 1)', 'important');
-          button.style.setProperty('background', 'rgba(0, 0, 0, 1)', 'important');
-          button.style.setProperty('border-color', 'rgba(0, 0, 0, 1)', 'important');
-          button.style.setProperty('color', 'rgba(255, 255, 255, 1)', 'important');
-          
-          // Gen 3 LG base button dimensions - matching Figma design
-          button.style.setProperty('height', '44px', 'important');
-          button.style.setProperty('min-height', '44px', 'important');
-          button.style.setProperty('max-height', '44px', 'important');
-          button.style.setProperty('padding', '12px 20px', 'important');
-          button.style.setProperty('border-radius', '9999px', 'important');
-          button.style.setProperty('font-size', '16px', 'important');
-          button.style.setProperty('font-weight', '500', 'important');
-          button.style.setProperty('line-height', '1.333', 'important');
-          button.style.setProperty('letter-spacing', '0.1px', 'important');
-          
-          // Center alignment with 8px gap - matching Figma design
-          button.style.setProperty('display', 'flex', 'important');
-          button.style.setProperty('flex-direction', 'row', 'important');
-          button.style.setProperty('align-items', 'center', 'important');
-          button.style.setProperty('justify-content', 'center', 'important');
-          button.style.setProperty('gap', '8px', 'important');
-          
-          // Ensure icon is properly aligned
-          const svg = button.querySelector('svg');
-          if (svg) {
-            svg.style.setProperty('display', 'block', 'important');
-            svg.style.setProperty('flex-shrink', '0', 'important');
-            svg.style.setProperty('margin', '0', 'important');
-            svg.style.setProperty('width', '16px', 'important');
-            svg.style.setProperty('height', '16px', 'important');
-          }
-        }
-      }
-    };
-    
-    // Apply immediately
-    applyStyles();
-    
-    // Use MutationObserver to watch for DOM changes
-    const observer = new MutationObserver(() => {
-      applyStyles();
-    });
-    
-    if (containerRef.current) {
-      observer.observe(containerRef.current, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class']
-      });
-    }
-    
-    // Also apply after delays to catch any late renders
-    const timeout1 = setTimeout(applyStyles, 10);
-    const timeout2 = setTimeout(applyStyles, 100);
-    const timeout3 = setTimeout(applyStyles, 500);
-    
-    return () => {
-      observer.disconnect();
-      clearTimeout(timeout1);
-      clearTimeout(timeout2);
-      clearTimeout(timeout3);
-    };
-  }, [isFormValid]);
+  const formatTime = (d: Date) => {
+    const h = d.getHours();
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:00 ${period}`;
+  };
 
-  return (
-    <div ref={containerRef} className={className}>
-      <Button
-        variant="primary"
-        onClick={handlePublish}
-        disabled={!isFormValid}
-        className={buttonClassName}
-      >
-        <svg 
-          width="16" 
-          height="16" 
-          viewBox="0 0 16 16" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ 
-            flexShrink: 0,
-            display: 'block'
-          }}
-        >
-          <path 
-            d="M13.3333 4L6 11.3333L2.66667 8" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          />
-        </svg>
-        Publish
-      </Button>
-    </div>
-  );
-};
+  const start = new Date(now);
+  start.setHours(now.getHours() + 1, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setHours(start.getHours() + 1, 0, 0, 0);
+
+  const dateStr = formatDate(now);
+
+  return {
+    title: '',
+    summary: '',
+    startDate: dateStr,
+    endDate: dateStr,
+    startTime: formatTime(start),
+    endTime: formatTime(end),
+    venue: '',
+    organizerLogo: null,
+  };
+}
 
 export default function Home() {
-  
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [startTime, setStartTime] = useState(0);
-  const [endTime, setEndTime] = useState(30);
+  const [endTime, setEndTime] = useState(10);
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [currentPlaybackTime, setCurrentPlaybackTime] = useState<number | undefined>(undefined);
-  const [eventData, setEventData] = useState<EventData>(initialEventData);
-  const [previewEventData, setPreviewEventData] = useState<EventData>(initialEventData);
+  const [eventData, setEventData] = useState<EventData>(getDefaultEventData);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisReasons, setAnalysisReasons] = useState<AnalysisReasons | null>(null);
+  const [suggestedStartTime, setSuggestedStartTime] = useState<number | null>(null);
+  const [embeddingBlocked, setEmbeddingBlocked] = useState(false);
+  const [logoAdjust, setLogoAdjust] = useState<LogoAdjust>({ scale: 1, x: 0, y: 0 });
+  const [isLogoAdjusting, setIsLogoAdjusting] = useState(false);
+  // Ref so the analysis effect always reads the latest videoInfo without re-triggering
+  const pendingAnalysisRef = useRef<{ info: VideoInfo } | null>(null);
 
   const handleVideoLoad = (info: VideoInfo) => {
     setVideoInfo(info);
     setStartTime(0);
-    setEndTime(30);
+    setEndTime(10);
     setVideoDuration(null);
     setCurrentPlaybackTime(undefined);
+    setAnalysisReasons(null);
+    setSuggestedStartTime(null);
+    setEmbeddingBlocked(false);
+    setIsAnalyzing(true);
+    // Store the info so the duration-aware effect can pick it up
+    pendingAnalysisRef.current = { info };
   };
 
-  const handleBackToInput = () => {
-    setVideoInfo(null);
-    setStartTime(0);
-    setEndTime(30);
-    setVideoDuration(null);
-    setCurrentPlaybackTime(undefined);
-  };
+  // Run analysis once we have both videoInfo and the real duration from the player.
+  // If the player doesn't report duration within 4s, proceed anyway — the API route
+  // fetches the real duration from the YouTube Data API server-side.
+  useEffect(() => {
+    if (!pendingAnalysisRef.current) return;
+    const { info } = pendingAnalysisRef.current;
+
+    let fired = false;
+
+    const runAnalysis = async (knownDuration: number | null) => {
+      if (fired) return;
+      fired = true;
+      pendingAnalysisRef.current = null;
+
+      try {
+        const res = await fetch('/api/analyze-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            videoId: info.videoId,
+            platform: info.platform,
+            originalUrl: info.originalUrl,
+            // Send what we have — the server will override with YouTube Data API duration
+            duration: knownDuration ?? 300,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const dur = knownDuration ?? 300;
+          const t = Math.max(0, Math.min(data.suggestedStartTime, dur - 10));
+          setSuggestedStartTime(t);
+          setStartTime(t);
+          setEndTime(t + 10);
+          setAnalysisReasons(data.reasons);
+          if (data.embeddingBlocked) setEmbeddingBlocked(true);
+        }
+      } catch (err) {
+        console.error('Video analysis failed:', err);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    // If the player already reported duration, go immediately
+    if (videoDuration !== null) {
+      runAnalysis(videoDuration);
+      return;
+    }
+
+    // Otherwise wait up to 4 seconds for the player, then proceed without it
+    const timeout = setTimeout(() => {
+      runAnalysis(null); // server will get real duration from YouTube Data API
+    }, 4000);
+
+    return () => clearTimeout(timeout);
+  }, [videoDuration, videoInfo]); // re-runs when duration arrives OR video changes
 
   const handleDurationDetected = (duration: number) => {
     setVideoDuration(duration);
     if (endTime > duration) {
-      setEndTime(Math.min(30, duration));
+      setEndTime(Math.min(10, duration));
     }
   };
 
@@ -177,191 +144,213 @@ export default function Home() {
     setEndTime(end);
   };
 
-  const handleSeek = (timestamp: number) => {
-    // Seek to the specified timestamp
-    // This will update startTime, which will trigger the video player to seek
-    const newStart = Math.max(0, Math.min(timestamp - 15, (videoDuration || 300) - 30));
-    const newEnd = Math.min(newStart + 30, videoDuration || 300);
-    setStartTime(newStart);
-    setEndTime(newEnd);
-    setCurrentPlaybackTime(timestamp);
+  const handleVideoRemove = () => {
+    setVideoInfo(null);
+    setStartTime(0);
+    setEndTime(10);
+    setVideoDuration(null);
+    setCurrentPlaybackTime(undefined);
+    setAnalysisReasons(null);
+    setSuggestedStartTime(null);
+    setIsAnalyzing(false);
+    setEmbeddingBlocked(false);
+    pendingAnalysisRef.current = null;
   };
 
   const isFormValid = useMemo(() => {
     return !!(
       eventData.title &&
-      eventData.date &&
-      eventData.time &&
+      eventData.startDate &&
+      eventData.startTime &&
       eventData.venue &&
-      eventData.description &&
+      eventData.summary &&
       videoInfo
     );
   }, [eventData, videoInfo]);
 
   const handlePublish = () => {
     if (isFormValid) {
-      // Handle publish logic here
-      console.log('Publishing event:', { ...previewEventData, videoInfo });
+      console.log('Publishing event:', { ...eventData, videoInfo });
       alert('Event published successfully!');
     }
   };
 
-  
-  try {
-    return (
-      <>
-        <noscript>
-          <div style={{ padding: '50px', backgroundColor: 'red', color: 'white', fontSize: '24px' }}>
-            JavaScript is disabled! Please enable JavaScript to view this page.
+  return (
+    <ErrorBoundary>
+      <main className={styles.main}>
+        {/* ── Top Nav ─────────────────────────────────────────── */}
+        <nav className={styles.topNav}>
+          <div className={styles.navLeading}>
+            <button className={styles.closeBtn} aria-label="Close" type="button">
+              <XIcon />
+            </button>
+            <span className={styles.navTitle}>New event</span>
           </div>
-        </noscript>
-        <ErrorBoundary>
-          <main className={styles.main} style={{ minHeight: '100vh', backgroundColor: '#fafafa', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
-        <div className={styles.layout}>
-          {/* Left Sidebar */}
-          <EventSidebar
-            eventData={eventData}
-            onEventDataChange={(newData) => {
-              setEventData(newData);
-              // Keep preview logo when logo is uploaded, but don't clear it when removed
-              if (newData.organizerLogo) {
-                setPreviewLogo(newData.organizerLogo);
-              }
-            }}
-            onDialogStateChange={setIsDialogOpen}
-          />
+          <div className={styles.navTrailing}>
+            <button className={styles.previewBtn} type="button">
+              Save as draft
+            </button>
+            <button
+              className={styles.publishBtn}
+              type="button"
+              onClick={handlePublish}
+              disabled={!isFormValid}
+            >
+              Publish
+            </button>
+          </div>
+        </nav>
 
-          {/* Main Canvas Area */}
-          <div className={`${styles.canvasArea} ${isDialogOpen ? styles.dialogOpen : ''}`}>
-            {/* Publish Button - Top Right */}
-            <PublishButtonContainer 
-              isFormValid={isFormValid}
-              handlePublish={handlePublish}
-              className={styles.publishButtonContainer}
-              buttonClassName={styles.publishButton}
-            />
-            
-            {/* Banner - Underneath Publish Button, Right Aligned */}
-            <div className={styles.bannerContainer}>
-              <div className={styles.banner}>
-                <Typography variant="body-md-bold" className={styles.bannerHeadline}>
-                  Boost Sales With Video
-                </Typography>
-                <Typography variant="body-sm" className={styles.bannerDescription}>
-                  Events like yours sell 16% more tickets when video is added to the listing.
-                </Typography>
-                <div className={styles.bannerImage}>
-                  <img 
-                    src="/assets/b28cab8812d5e92dea5ae0e35ddefa3ffe3c1f8c.png" 
-                    alt="Event activities collage"
-                    className={styles.bannerImageElement}
-                  />
+        {/* ── Body (3 columns) ─────────────────────────────────── */}
+        <div className={styles.body}>
+          {/* Left — Stepper panel */}
+          <div className={styles.stepperPanel}>
+            <div className={styles.stepper}>
+              {/* White pill — indicators only (circles + dots) */}
+              <div className={styles.indicatorPill}>
+                <div className={styles.pillStepRow}>
+                  <div className={`${styles.stepCircle} ${styles.stepCircleActive}`}>1</div>
+                </div>
+                <div className={styles.pillSubRow}>
+                  <div className={styles.subDot} />
+                </div>
+                <div className={styles.pillSubRow}>
+                  <div className={styles.subDotInactive} />
+                </div>
+                <div className={styles.pillStepRow}>
+                  <div className={styles.stepCircle}>2</div>
+                </div>
+                <div className={styles.pillStepRow}>
+                  <div className={styles.stepCircle}>3</div>
+                </div>
+                <div className={styles.pillStepRow}>
+                  <div className={styles.stepCircle}>4</div>
+                </div>
+              </div>
+              {/* Labels column — outside the pill */}
+              <div className={styles.labelCol}>
+                <div className={styles.labelStepRow}>
+                  <span className={`${styles.stepLabel} ${styles.stepLabelActive}`}>Create event page</span>
+                </div>
+                <div className={styles.labelSubRow}>
+                  <span className={styles.subLabel}>Discovery card</span>
+                </div>
+                <div className={styles.labelSubRow}>
+                  <span className={styles.subLabel}>Details</span>
+                </div>
+                <div className={styles.labelStepRow}>
+                  <span className={styles.stepLabel}>Add tickets</span>
+                </div>
+                <div className={styles.labelStepRow}>
+                  <span className={styles.stepLabel}>Promotion</span>
+                </div>
+                <div className={styles.labelStepRow}>
+                  <span className={styles.stepLabel}>Publish</span>
                 </div>
               </div>
             </div>
-            
-            {/* Top Header with View Toggle */}
-            <div className={styles.viewToggleContainer}>
-              <ViewToggle value={viewMode} onChange={setViewMode} />
-            </div>
-            
-            {videoInfo ? (
-              <>
-                <div className={styles.canvasContent}>
-                  <MobileMockup isMobile={viewMode === 'mobile'}>
-                    <EventCardPreview
-                      videoInfo={videoInfo}
-                      startTime={startTime}
-                      endTime={endTime}
-                      eventData={eventData}
-                      organizerLogo={previewLogo}
-                      onDurationDetected={handleDurationDetected}
-                      onPlaybackTimeUpdate={setCurrentPlaybackTime}
-                    />
-                  </MobileMockup>
-                </div>
+          </div>
 
-                {/* Video Editor and Back Button - Positioned at bottom */}
-                <div className={styles.videoInputSection}>
-                  {/* Video Editor - Above back button */}
-                  <div className={styles.editorSection}>
-                    <VideoEditor
-                      videoInfo={videoInfo}
-                      onTimeRangeChange={handleTimeRangeChange}
-                      duration={videoDuration || 300}
-                      currentPlaybackTime={currentPlaybackTime}
-                    />
-                  </div>
-
-                  {/* Back Button */}
-                  <div className={styles.backButtonWrapper}>
-                    <Button
-                      variant="ghost"
-                      onClick={handleBackToInput}
-                      className={styles.backButton}
-                    >
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 16 16" 
-                        fill="none" 
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={styles.backIcon}
-                      >
-                        <path 
-                          d="M10 12L6 8L10 4" 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Back to URL Input
-                    </Button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className={styles.canvasContent}>
-                  <MobileMockup isMobile={viewMode === 'mobile'}>
-                    <EventCardPreview
-                      videoInfo={videoInfo}
-                      startTime={startTime}
-                      endTime={endTime}
-                      eventData={eventData}
-                      organizerLogo={previewLogo}
-                      onDurationDetected={handleDurationDetected}
-                      onPlaybackTimeUpdate={setCurrentPlaybackTime}
-                    />
-                  </MobileMockup>
-                </div>
-
-                {/* Video URL Input - Only visible when no video is loaded */}
-                <div className={styles.videoInputSection}>
-                  <div className={styles.videoInputWrapper}>
-                    <VideoUrlInput
-                      onVideoLoad={handleVideoLoad}
-                      disabled={false}
-                    />
-                  </div>
-                </div>
-              </>
+          {/* Center — phone mockup + trailer editor below */}
+          <div className={styles.centerPanel}>
+            <MobileMockup isMobile>
+              <EventCardPreview
+                videoInfo={videoInfo}
+                startTime={startTime}
+                endTime={endTime}
+                eventData={eventData}
+                organizerLogo={previewLogo}
+                logoAdjust={logoAdjust}
+                onLogoClick={() => setIsLogoAdjusting(true)}
+                onDurationDetected={handleDurationDetected}
+                onPlaybackTimeUpdate={setCurrentPlaybackTime}
+              />
+            </MobileMockup>
+            {isLogoAdjusting && previewLogo && (
+              <LogoAdjuster
+                logoSrc={previewLogo}
+                adjust={logoAdjust}
+                onChange={setLogoAdjust}
+                onClose={() => setIsLogoAdjusting(false)}
+              />
             )}
+            <div className={styles.videoEditorWrap}>
+              <VideoEditor
+                videoInfo={videoInfo}
+                isAnalyzing={isAnalyzing}
+                analysisReasons={analysisReasons}
+                duration={videoDuration || 300}
+                onTimeRangeChange={handleTimeRangeChange}
+                suggestedStartTime={suggestedStartTime}
+              />
+            </div>
+          </div>
+
+          {/* Right — Form panel */}
+          <div className={styles.formPanelOuter}>
+            <EventSidebar
+              eventData={eventData}
+              onEventDataChange={(newData) => {
+                setEventData(newData);
+                setPreviewLogo(newData.organizerLogo);
+                // Reset adjust when logo is removed
+                if (!newData.organizerLogo) {
+                  setLogoAdjust({ scale: 1, x: 0, y: 0 });
+                  setIsLogoAdjusting(false);
+                }
+              }}
+              onVideoLoad={handleVideoLoad}
+              onVideoRemove={handleVideoRemove}
+              videoInfo={videoInfo}
+              embeddingBlocked={embeddingBlocked}
+            />
           </div>
         </div>
       </main>
-      </ErrorBoundary>
-      </>
-    );
-  } catch (error) {
-    console.error('[DEBUG] Render error:', error);
-    return (
-      <div style={{ padding: '50px', backgroundColor: 'red', color: 'white', fontSize: '24px' }}>
-        <h1>RENDER ERROR</h1>
-        <pre>{String(error)}</pre>
-        <pre>{error instanceof Error ? error.stack : ''}</pre>
+    </ErrorBoundary>
+  );
+}
+
+/* ── Stepper sub-components ─────────────────────────────── */
+
+function StepRow({
+  number,
+  label,
+  active = false,
+}: {
+  number: number;
+  label: string;
+  active?: boolean;
+}) {
+  return (
+    <div className={styles.stepRow}>
+      <div className={`${styles.stepCircle} ${active ? styles.stepCircleActive : ''}`}>
+        {number}
       </div>
-    );
-  }
+      <span className={`${styles.stepLabel} ${active ? styles.stepLabelActive : ''}`}>{label}</span>
+    </div>
+  );
+}
+
+function SubStep({ label, active = false }: { label: string; active?: boolean }) {
+  return (
+    <div className={styles.subStep}>
+      <div className={active ? styles.subDot : styles.subDotInactive} />
+      <span className={styles.subLabel}>{label}</span>
+    </div>
+  );
+}
+
+/* ── Nav icons ──────────────────────────────────────────── */
+
+function XIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 5L5 15M5 5L15 15" stroke="#161719" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return <img src="/icons/Icon_Preview.png" style={{ display: 'block', height: 20, width: 'auto' }} alt="" />;
 }

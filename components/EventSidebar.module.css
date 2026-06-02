@@ -1,448 +1,477 @@
-.sidebar {
-  width: 340px;
-  min-width: 340px;
-  height: 100vh;
-  max-height: 100vh;
+/* ── Form Panel ───────────────────────────────────────────── */
+.formPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.panelTitle {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
+  margin: 0;
+  letter-spacing: 0;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
   background: white;
-  border-right: 1px solid var(--color-neutral-200, #e5e5e5);
-  overflow-y: auto;
-  overflow-x: hidden;
+  border-radius: 8px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
-.content {
-  padding: 52px 24px;
-}
-
-.heading {
-  margin: 0 0 24px 0 !important;
-}
-
-.banner {
-  padding: 14px;
-  background: var(--color-neutral-50, #fafafa);
-  border: 1px solid var(--color-neutral-200, #e5e5e5);
-  border-radius: 16px;
+/* Section within a card */
+.section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 16px !important;
 }
 
-.bannerHeadline {
-  color: rgba(0, 0, 0, 1) !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
-  line-height: 1.4;
+/* Section title + subtitle stacked */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
   margin: 0;
 }
 
-.bannerDescription {
-  color: rgba(82, 82, 82, 1) !important;
-  font-size: 14px !important;
-  line-height: 1.4;
+.sectionSubtitle {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #3d3f43;
   margin: 0;
+  letter-spacing: 0.27px;
 }
 
-.bannerImage {
-  margin-top: 10px;
+/* ── Standard 56px field ─────────────────────────────────── */
+.field56 {
   width: 100%;
-  overflow: hidden;
+  height: 56px;
+  padding: 8px 16px;
+  border: 1px solid rgba(25, 22, 19, 0.3);
   border-radius: 8px;
-  height: 80px; /* Matches the image aspect ratio (224x80px) */
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  background: white;
+  box-sizing: border-box;
+  outline: none;
+  letter-spacing: 0.15px;
 }
 
-.bannerImage .image {
+.field56:focus {
+  border-color: #161719;
+  box-shadow: 0 0 0 2px rgba(22, 23, 25, 0.08);
+}
+
+.field56::placeholder {
+  color: #696c71;
+}
+
+/* ── Textarea ────────────────────────────────────────────── */
+.textarea {
   width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover; /* Fill the container while maintaining aspect ratio */
-  object-position: center;
-  border-radius: 4px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-.dateTimeRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 0 0 24px 0 !important;
-}
-
-.logoSection {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-}
-
-/* Ensure consistent spacing for all form field sections */
-.content > div > [class*="Stack"] > * {
-  margin: 0;
-}
-
-/* Ensure consistent spacing for TextField components */
-.content [class*="TextField"] {
-  margin: 0;
-}
-
-/* Remove margin-bottom from divs inside TextField components */
-.content [class*="TextField"] div {
-  margin-bottom: 0px !important;
-}
-
-/* Set gap to 8px ONLY for TextField wrapper divs - be specific to avoid affecting Stack gap */
-.textFieldWrapper > div {
-  gap: 8px !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-/* Also target TextField components directly if they're not wrapped */
-.content [class*="TextField"] > div {
-  gap: 8px !important;
-}
-
-/* Target all divs within Stack in content area to remove bottom margin */
-.content > div > [class*="Stack"] > div {
-  margin-bottom: 0px !important;
-}
-
-/* Additional selector to catch nested divs with inline margin-bottom */
-.content div[style*="margin-bottom"] {
-  margin-bottom: 0px !important;
-}
-
-.logoPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   padding: 16px;
-  border: 1px solid var(--color-neutral-200, #e5e5e5);
+  border: 1px solid rgba(25, 22, 19, 0.3);
   border-radius: 8px;
-  background: var(--color-neutral-50, #fafafa);
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  background: white;
+  box-sizing: border-box;
+  outline: none;
+  resize: vertical;
+  min-height: 96px;
+  letter-spacing: 0.15px;
 }
 
-.logoImage {
-  max-width: 100%;
-  max-height: 120px;
-  object-fit: contain;
-  border-radius: 4px;
+.textarea:focus {
+  border-color: #161719;
+  box-shadow: 0 0 0 2px rgba(22, 23, 25, 0.08);
 }
 
-.logoActions {
-  display: flex;
-  gap: 8px;
+.textarea::placeholder {
+  color: #696c71;
 }
 
-/* Remove button styling - match Enhance and Load video button style (light gray background) */
-.removeButton,
-.removeButton :global(button),
-.removeButton :global(button[class*="Button"]) {
-  background-color: #E4E5E6 !important;
-  background: #E4E5E6 !important;
-  border-color: #E4E5E6 !important;
+/* Div-based click trigger that looks like the textarea */
+.textareaTrigger {
+  cursor: pointer;
+  min-height: 96px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* Ensure remove button text is 100% black */
-.removeButton,
-.removeButton :global(button),
-.removeButton :global(button[class*="Button"]),
-.removeButton :global(button) *,
-.removeButton :global(button[class*="Button"]) * {
-  color: #000000 !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: #000000 !important;
+.textareaTrigger:hover {
+  border-color: rgba(25, 22, 19, 0.5);
 }
 
-.removeButton :global(button):hover,
-.removeButton :global(button[class*="Button"]):hover {
-  background-color: #E4E5E6 !important;
+.textareaPlaceholder {
+  color: #696c71;
 }
 
-.logoUpload {
-  width: 100px;
-  padding: 16px;
-  border: 2px dashed var(--color-neutral-300, #d4d4d4);
+/* ── Blue alert ──────────────────────────────────────────── */
+.blueAlert {
+  background: #e3ebfc;
   border-radius: 8px;
+  padding: 12px;
   display: flex;
-  justify-content: center;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.alertIconWrap {
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
-  min-height: 100px;
-  margin-top: 8px;
-}
-
-.uploadLogoButton {
-  background-color: rgba(0, 0, 0, 1) !important;
-  background: rgba(0, 0, 0, 1) !important;
-  color: rgba(255, 255, 255, 1) !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s;
-}
-
-.uploadLogoButton:hover {
-  background-color: rgba(0, 0, 0, 0.9) !important;
-}
-
-.uploadLogoButton:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 1) !important;
-  outline-offset: 2px !important;
-}
-
-.plusIcon {
+  justify-content: center;
   width: 24px;
   height: 24px;
-  color: rgba(255, 255, 255, 1) !important;
-  stroke: rgba(255, 255, 255, 1) !important;
+  align-self: center;
 }
 
-.hiddenInput {
-  display: none;
-}
-
-.textAreaWrapper {
+.alertText {
   display: flex;
   flex-direction: column;
-  gap: 8px !important;
-  margin: 0 0 24px 0 !important;
+  gap: 2px;
+  flex: 1;
 }
 
-.textAreaContainer {
-  position: relative;
-  width: 100%;
+.alertTitle {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #161719;
+  margin: 0;
+  letter-spacing: 0.22px;
 }
 
-.enhancementButtonWrapper {
-  position: absolute;
-  bottom: 10px;
-  right: 20px; /* Position to the left of scrollbar (matches padding-right) */
-  z-index: 10;
+.alertBody {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  margin: 0;
+  letter-spacing: 0.22px;
+}
+
+/* ── Video URL input group ───────────────────────────────── */
+.videoInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Icon Field (56px, icon on left) ─────────────────────── */
+.iconField {
   display: flex;
   align-items: center;
+  height: 56px;
+  border: 1px solid rgba(25, 22, 19, 0.3);
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-/* Ensure button doesn't overlap scrollbar - positioned in reserved padding area */
-.enhancementButtonWrapper button {
+.iconField:focus-within {
+  border-color: #161719;
+  box-shadow: 0 0 0 2px rgba(22, 23, 25, 0.08);
+}
+
+.loadingField {
+  opacity: 0.7;
+}
+
+.iconFieldError {
+  border-color: #CC0D11 !important;
+  box-shadow: none !important;
+}
+
+.disabledField {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.iconInput {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  background: transparent;
+  padding-right: 16px;
+  letter-spacing: 0.15px;
+  min-width: 0;
+}
+
+.iconInput::placeholder {
+  color: #696c71;
+}
+
+/* URL display (truncated link when video is loaded/errored) */
+.urlDisplay {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.15px;
+  text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.urlDisplay:hover {
+  text-decoration: underline;
+}
+
+/* Delete / remove button */
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: rgba(122, 124, 129, 0.2);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 12px;
+  transition: background 0.15s ease;
+  padding: 0;
+}
+
+.deleteBtn:hover {
+  background: rgba(122, 124, 129, 0.35);
+}
+
+/* ── Logo preview (uploaded image) ──────────────────────── */
+.logoPreviewWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.logoPreview {
+  max-width: 34px;
+  max-height: 34px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Image-only delete button — PNG includes the circle */
+.deleteBtnImg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 12px;
+  padding: 0;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.deleteBtnImg:hover {
+  opacity: 0.8;
+}
+
+.iconPlaceholder {
+  flex: 1;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #696c71;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: rgba(25, 22, 19, 0.1);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* ── Helper / Error / Success texts ─────────────────────── */
+.helperText {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #3d3f43;
+  margin: 0;
+  letter-spacing: 0.27px;
+}
+
+.errorText {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #CC0D11;
+  margin: 0;
+  letter-spacing: 0.27px;
+}
+
+.successText {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #2e7d32;
   margin: 0;
 }
 
-.enhancementButton {
-  min-width: 100px;
-  width: auto;
+/* ── Schedule 2×2 grid ───────────────────────────────────── */
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 8px;
+}
+
+/* Floating label field */
+.floatingField {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  border: 1px solid rgba(25, 22, 19, 0.3);
+  border-radius: 8px;
+  background: white;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  gap: 8px;
+}
+
+.floatingField:focus-within {
+  border-color: #161719;
+  box-shadow: 0 0 0 2px rgba(22, 23, 25, 0.08);
+}
+
+.floatingContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.floatingLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #696c71;
+  letter-spacing: 0.22px;
   white-space: nowrap;
 }
 
-/* Button styling - match Load video button style */
-.enhancementButtonWrapper :global(button),
-.enhancementButtonWrapper :global(button[class*="Button"]),
-.enhancementButton {
-  background-color: #E4E5E6 !important;
-  background: #E4E5E6 !important;
-  border-color: #E4E5E6 !important;
+.floatingInput {
+  border: none;
+  outline: none;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  background: transparent;
+  width: 100%;
+  letter-spacing: 0.15px;
+  padding: 0;
 }
 
-/* Ensure button text is 100% black */
-.enhancementButtonWrapper :global(button),
-.enhancementButtonWrapper :global(button[class*="Button"]),
-.enhancementButtonWrapper :global(button) *,
-.enhancementButtonWrapper :global(button[class*="Button"]) *,
-.enhancementButton,
-.enhancementButton * {
-  color: #000000 !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: #000000 !important;
+.floatingInput::placeholder {
+  color: #a3a3a3;
+  font-size: 13px;
 }
 
-.labelRow {
+/* ── Next Step button ────────────────────────────────────── */
+.nextStepRow {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.nextStepBtn {
+  display: inline-flex;
   align-items: center;
-}
-
-.charCount {
-  font-size: 12px;
-  color: rgba(105, 108, 113, 1);
+  justify-content: center;
+  gap: 8px;
+  background: #161719;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 12px 20px;
   font-family: 'Founders Grotesk R', 'Inter', sans-serif;
-}
-
-.label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
-  color: #262626; /* Direct value for Cursor browser compatibility */
-  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  line-height: 1.333;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  min-width: 72px;
+  height: 48px;
+  transition: background-color 0.15s ease;
 }
 
-.helperText {
-  font-size: 14px;
-  color: rgba(105, 108, 113, 1);
-  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
-  margin-bottom: 8px;
+.nextStepBtn:hover {
+  background: #25272b;
 }
 
-.textArea {
-  width: 100%;
-  padding: 10px 14px;
-  padding-bottom: 50px; /* Reserve vertical space for enhance button (button height ~40px + 10px gap) */
-  padding-right: 20px; /* Reserve horizontal space for scrollbar so it doesn't overlap button */
-  border: 1px solid #d4d4d4; /* Direct value for Cursor browser compatibility */
-  border-radius: 4px;
-  font-size: 15px;
-  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
-  resize: none; /* Disable manual resize, we handle it automatically */
-  min-height: 80px;
-  max-height: 500px; /* Max height will be dynamically calculated, this is a fallback */
-  line-height: 1.4;
-  background-color: #ffffff; /* Explicit white background */
-  color: #262626; /* Explicit dark text color */
-  margin-top: 8px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-y: auto; /* Always allow scrolling when content exceeds max height */
-  transition: height 0.1s ease-out; /* Smooth height transitions */
-  position: relative;
-  box-sizing: border-box;
+.nextStepBtn:active {
+  background: #3d3f43;
 }
-
-/* Scanning animation effect */
-.textArea.scanning {
-  position: relative;
-  overflow: hidden;
-}
-
-.textArea.scanning::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(38, 38, 38, 0.1) 50%,
-    transparent 100%
-  );
-  animation: scan 2s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes scan {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-.textArea:focus {
-  outline: none;
-  border-color: #262626; /* Direct value - black for focus */
-  box-shadow: 0 0 0 2px rgba(38, 38, 38, 0.1);
-}
-
-.textArea::placeholder {
-  color: #a3a3a3; /* Direct value for Cursor browser compatibility */
-}
-
-.textFieldWrapper {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 24px !important;
-}
-
-.textFieldWrapper > div {
-  gap: 8px !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.inputWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Consistent field wrapper for all form sections */
-.fieldSection {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d4d4d4; /* Direct value for Cursor browser compatibility */
-  border-radius: 4px;
-  font-size: 15px;
-  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
-  background-color: #ffffff; /* Explicit white background */
-  color: #262626; /* Explicit dark text color */
-}
-
-.input:focus {
-  outline: none;
-  border-color: #262626; /* Direct value - black for focus */
-  box-shadow: 0 0 0 2px rgba(38, 38, 38, 0.1);
-}
-
-.input::placeholder {
-  color: #a3a3a3; /* Direct value for placeholder */
-}
-
-/* Override Typography heading-md (h3) to black */
-.sidebar .content h3,
-.sidebar .content :global(h3),
-.content > div > h3,
-.content .heading {
-  color: rgba(0, 0, 0, 1) !important;
-  padding-bottom: 0;
-}
-
-/* Override TextField labels to black */
-.sidebar .content :global(label),
-.sidebar .content label,
-.content [class*="TextField"] label,
-.content [class*="textField"] label {
-  color: rgba(0, 0, 0, 1) !important;
-}
-
-/* Override Typography body-sm-bold (p) to black */
-.sidebar .content p,
-.sidebar .content :global(p),
-.content .logoSection p {
-  color: rgba(0, 0, 0, 1) !important;
-}
-
-/* Set font-weight and font-size for Organizer Logo Typography */
-.content .logoSection p:first-of-type {
-  font-weight: 500 !important;
-  font-size: 0.875rem !important;
-}
-
-/* Set font-family for buttons in logoSection */
-.logoSection button,
-.logoSection :global(button),
-.logoUpload button,
-.logoUpload :global(button),
-.logoActions button,
-.logoActions :global(button) {
-  font-family: 'Founders Grotesk R', 'Inter', sans-serif !important;
-}
-

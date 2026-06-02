@@ -15,10 +15,12 @@ export function parseVideoUrl(url: string): VideoInfo | null {
     return null;
   }
 
-  // YouTube patterns
+  // YouTube patterns — covers watch, short URLs, embeds, Shorts, and live
   const youtubePatterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
     /youtube\.com\/.*[?&]v=([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^/?&\n#]+)/,
+    /youtube\.com\/live\/([^/?&\n#]+)/,
   ];
 
   for (const pattern of youtubePatterns) {
@@ -29,7 +31,7 @@ export function parseVideoUrl(url: string): VideoInfo | null {
       return {
         platform: 'youtube',
         videoId: videoId,
-        embedUrl: `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&loop=1&playlist=${videoId}&rel=0`,
+        embedUrl: `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&rel=0&controls=0&modestbranding=1`,
         originalUrl: url,
       };
     }

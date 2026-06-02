@@ -1,0 +1,306 @@
+/* ── Overlay ────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 80px;
+  box-sizing: border-box;
+}
+
+/* ── Modal shell ────────────────────────────────────────── */
+.modal {
+  background: #f5f5f0;
+  border-radius: 16px;
+  width: 602px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 160px);
+}
+
+/* ── TopBar ─────────────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 24px 24px;
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
+  margin: 0;
+  flex: 1;
+}
+
+.closeBtn {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #161719;
+}
+
+.closeBtn svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Divider ────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: rgba(25, 22, 19, 0.1);
+  flex-shrink: 0;
+}
+
+/* ── Scrollable content ─────────────────────────────────── */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 24px 24px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Section (label + field) ────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
+  margin: 0;
+}
+
+/* ── Description textarea ───────────────────────────────── */
+.textareaField {
+  background: white;
+  border: 1px solid rgba(25, 22, 19, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  width: 100%;
+  height: 134px;
+  resize: none;
+  box-sizing: border-box;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  letter-spacing: 0.15px;
+  outline: none;
+}
+
+.textareaField::placeholder {
+  color: #696c71;
+}
+
+.textareaField:focus {
+  border-color: rgba(25, 22, 19, 0.6);
+}
+
+/* ── "Optimize for discovery" button ───────────────────── */
+.optimizeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 10px 16px;
+  background: rgba(195, 195, 196, 0.4);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.optimizeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.optimizeBtnIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.optimizeBtnText {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #161719;
+  letter-spacing: 0.27px;
+  white-space: nowrap;
+}
+
+/* ── Suggested section (visible after optimization) ─────── */
+.suggestedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Suggested text box — read-only, real text (not placeholder style) */
+.suggestedField {
+  background: white;
+  border: 1px solid rgba(25, 22, 19, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  width: 100%;
+  height: 82px;
+  resize: none;
+  box-sizing: border-box;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #161719;
+  letter-spacing: 0.15px;
+  outline: none;
+  cursor: default;
+}
+
+.whySection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.whyLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
+  margin: 0;
+}
+
+.whyBody {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #3d3f43;
+  letter-spacing: 0.27px;
+  margin: 0;
+}
+
+/* Spinner for loading state */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(22, 23, 25, 0.2);
+  border-top-color: #161719;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Bottom action bar ──────────────────────────────────── */
+.bottomBar {
+  background: #f5f5f0;
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Single "Done" button — full width, primary */
+.doneBtn {
+  flex: 1;
+  height: 48px;
+  background: #161719;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.333;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+}
+
+.doneBtn:hover {
+  background: #2a2c2f;
+}
+
+/* "Keep original" — secondary ghost pill */
+.keepBtn {
+  flex: 1;
+  height: 48px;
+  background: rgba(22, 23, 25, 0.08);
+  color: #161719;
+  border: none;
+  border-radius: 9999px;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.333;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.keepBtn:hover {
+  background: rgba(22, 23, 25, 0.12);
+}
+
+/* "Apply suggestion" — primary black pill */
+.applyBtn {
+  flex: 1;
+  height: 48px;
+  background: #161719;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.333;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.applyBtn:hover {
+  background: #2a2c2f;
+}

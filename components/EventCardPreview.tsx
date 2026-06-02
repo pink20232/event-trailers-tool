@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Typography, Stack, Button } from '@eventbrite/marmalade';
 import { type VideoInfo } from '@/lib/videoUtils';
 import { type EventData } from './EventSidebar';
+import { type LogoAdjust } from './LogoAdjuster';
 import styles from './EventCardPreview.module.css';
 
 interface EventCardPreviewProps {
@@ -12,6 +13,8 @@ interface EventCardPreviewProps {
   endTime: number;
   eventData?: EventData;
   organizerLogo?: string | null; // Optional override for preview logo
+  logoAdjust?: LogoAdjust | null;
+  onLogoClick?: () => void;
   onDurationDetected?: (duration: number) => void;
   onPlaybackTimeUpdate?: (currentTime: number) => void;
 }
@@ -22,6 +25,8 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
   endTime,
   eventData,
   organizerLogo,
+  logoAdjust,
+  onLogoClick,
   onDurationDetected,
   onPlaybackTimeUpdate,
 }) => {
@@ -30,12 +35,15 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isReady, setIsReady] = useState(false);
   const [isMuted, setIsMuted] = useState(true); // Default: no sound (muted)
-  const [isPaused, setIsPaused] = useState(false); // Track pause/play state
   const durationDetectedRef = useRef(false);
   const playbackTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const playbackStartTimeRef = useRef<number>(Date.now());
-  const lastPlaybackTimeRef = useRef<number>(0);
-  const pausedTimeRef = useRef<number | null>(null);
+  // Tracks YouTube's actual play/pause state without triggering re-renders
+  const isYouTubePausedRef = useRef(false);
+  // Accumulated played seconds — updated on each tick when not paused
+  const accumulatedTimeRef = useRef(0);
+  // YT.Player instance attached to the visible iframe for state change events
+  const ytPlayerRef = useRef<any>(null);
 
   // Detect duration for YouTube videos using iframe API
   useEffect(() => {
@@ -181,30 +189,28 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
     return cleanup;
   }, [videoInfo, onDurationDetected]);
 
-  // Listen for YouTube iframe messages to get duration
+  // Listen for YouTube iframe messages — duration detection + play/pause state sync
   useEffect(() => {
-    if (videoInfo?.platform !== 'youtube' || durationDetectedRef.current) return;
+    if (videoInfo?.platform !== 'youtube') return;
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== 'https://www.youtube.com') return;
-      
+
       try {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        
-        // Check for duration in various message formats
-        if (data?.info?.videoData?.length_seconds) {
-          const duration = parseFloat(data.info.videoData.length_seconds);
-          if (duration > 0 && !durationDetectedRef.current) {
-            durationDetectedRef.current = true;
-            onDurationDetected?.(duration);
-          }
-        } else if (data?.info?.length_seconds) {
-          const duration = parseFloat(data.info.length_seconds);
-          if (duration > 0 && !durationDetectedRef.current) {
-            durationDetectedRef.current = true;
-            onDurationDetected?.(duration);
+
+        // Duration detection
+        if (!durationDetectedRef.current) {
+          if (data?.info?.videoData?.length_seconds) {
+            const duration = parseFloat(data.info.videoData.length_seconds);
+            if (duration > 0) { durationDetectedRef.current = true; onDurationDetected?.(duration); }
+          } else if (data?.info?.length_seconds) {
+            const duration = parseFloat(data.info.length_seconds);
+            if (duration > 0) { durationDetectedRef.current = true; onDurationDetected?.(duration); }
           }
         }
+
+        // Note: play/pause state is tracked via YT.Player onStateChange, not postMessage
       } catch (e) {
         // Not a JSON message or not the format we expect
       }
@@ -232,10 +238,9 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
 
     setIsReady(false);
     setIsMuted(true); // Reset to muted when new video loads
-    setIsPaused(false); // Reset pause state when new video loads
     playbackStartTimeRef.current = Date.now();
-    lastPlaybackTimeRef.current = startTime;
-    pausedTimeRef.current = null; // Reset paused time for new video
+    accumulatedTimeRef.current = 0;
+    isYouTubePausedRef.current = false;
     
     // For YouTube, we can control playback with API
     if (videoInfo.platform === 'youtube') {
@@ -247,6 +252,50 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
 
     setIsReady(true);
   }, [videoInfo]);
+
+  // Attach YT.Player to the visible iframe to get native onStateChange events.
+  // This is the only reliable way to detect play/pause — postMessage interception
+  // does not work in this environment.
+  useEffect(() => {
+    if (!isReady || !videoInfo || videoInfo.platform !== 'youtube' || !iframeRef.current) return;
+
+    // Destroy any previous player wrapper
+    if (ytPlayerRef.current) {
+      try { ytPlayerRef.current.destroy(); } catch (_) {}
+      ytPlayerRef.current = null;
+    }
+
+    const attach = () => {
+      if (!iframeRef.current || !window.YT?.Player) return;
+      try {
+        ytPlayerRef.current = new window.YT.Player(iframeRef.current, {
+          events: {
+            onStateChange: (event: { data: number }) => {
+              // 1 = playing, anything else (2=paused, 0=ended, 3=buffering) = not playing
+              isYouTubePausedRef.current = event.data !== 1;
+            },
+          } as any,
+        });
+      } catch (e) {
+        console.error('Failed to attach YT.Player for state tracking:', e);
+      }
+    };
+
+    if (window.YT?.Player) {
+      attach();
+    } else {
+      // API not ready yet — wait for it
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { if (prev) prev(); attach(); };
+    }
+
+    return () => {
+      if (ytPlayerRef.current) {
+        try { ytPlayerRef.current.destroy(); } catch (_) {}
+        ytPlayerRef.current = null;
+      }
+    };
+  }, [isReady, videoInfo]);
 
   useEffect(() => {
     if (!videoInfo || !isReady || videoInfo.platform !== 'youtube') return;
@@ -293,6 +342,8 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
   // Track playback time - simulate based on video playback
   // For YouTube, we track time starting from startTime and looping within the range
 
+  // Track playback time and loop within the selected range.
+  // Freezes the indicator when YouTube is paused; resumes from where it stopped.
   useEffect(() => {
     if (!videoInfo || !isReady || !onPlaybackTimeUpdate) {
       if (playbackTimeIntervalRef.current) {
@@ -302,78 +353,35 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
       return;
     }
 
-    if (isPaused) {
-      // Pause: stop the interval and store current time
-      if (playbackTimeIntervalRef.current) {
-        clearInterval(playbackTimeIntervalRef.current);
-        playbackTimeIntervalRef.current = null;
-        
-        // Store the current playback time when pausing
-        const rangeDuration = endTime - startTime;
-        const elapsed = (Date.now() - playbackStartTimeRef.current) / 1000;
-        const currentTimeInRange = elapsed % rangeDuration;
-        const currentTime = startTime + currentTimeInRange;
-        pausedTimeRef.current = currentTime;
-        lastPlaybackTimeRef.current = currentTime;
-        
-        // Update UI with paused time
-        onPlaybackTimeUpdate(currentTime);
-      }
-      return;
-    }
-
-    // Resume or start: calculate the offset based on last known time
     const rangeDuration = endTime - startTime;
-    
-    // Determine the time to resume from
-    let resumeTime: number;
-    if (pausedTimeRef.current !== null) {
-      // Resuming from pause - use the stored paused time
-      resumeTime = pausedTimeRef.current;
-      // Clear paused time now that we're resuming
-      pausedTimeRef.current = null;
-    } else if (lastPlaybackTimeRef.current >= startTime && lastPlaybackTimeRef.current <= endTime) {
-      // Use last known time if it's still within range
-      resumeTime = lastPlaybackTimeRef.current;
-    } else {
-      // Start from beginning of range
-      resumeTime = startTime;
-    }
-    
-    // Calculate the offset from startTime
-    const timeOffset = resumeTime - startTime;
-    playbackStartTimeRef.current = Date.now() - (timeOffset * 1000);
+    accumulatedTimeRef.current = 0;
+    playbackStartTimeRef.current = Date.now();
+    isYouTubePausedRef.current = false;
 
-    // Update playback time based on elapsed time within the selected range
     playbackTimeIntervalRef.current = setInterval(() => {
-      const elapsed = (Date.now() - playbackStartTimeRef.current) / 1000; // Convert to seconds
-      const currentTimeInRange = elapsed % rangeDuration; // Loop within range
-      const currentTime = startTime + currentTimeInRange;
-      lastPlaybackTimeRef.current = currentTime;
-      
-      // If we've reached or passed endTime, seek back to startTime for looping
-      if (currentTime >= endTime - 0.1) { // Small buffer to account for timing
-        const iframe = iframeRef.current;
-        if (iframe && iframe.contentWindow && videoInfo?.platform === 'youtube') {
-          try {
-            iframe.contentWindow.postMessage(
-              JSON.stringify({
-                event: 'command',
-                func: 'seekTo',
-                args: [startTime, true],
-              }),
-              'https://www.youtube.com'
-            );
-            // Reset the playback start time to maintain smooth looping
-            playbackStartTimeRef.current = Date.now();
-          } catch (error) {
-            console.error('Error seeking YouTube player for loop:', error);
+      if (!isYouTubePausedRef.current) {
+        // Accumulate elapsed time only while playing
+        accumulatedTimeRef.current += 0.1;
+        if (accumulatedTimeRef.current >= rangeDuration) {
+          accumulatedTimeRef.current = 0;
+          // Seek YouTube back to startTime
+          const iframe = iframeRef.current;
+          if (iframe && iframe.contentWindow && videoInfo?.platform === 'youtube') {
+            try {
+              iframe.contentWindow.postMessage(
+                JSON.stringify({ event: 'command', func: 'seekTo', args: [startTime, true] }),
+                'https://www.youtube.com'
+              );
+            } catch (error) {
+              console.error('Error seeking YouTube player for loop:', error);
+            }
           }
         }
       }
-      
+
+      const currentTime = startTime + accumulatedTimeRef.current;
       onPlaybackTimeUpdate(currentTime);
-    }, 100); // Update every 100ms for smooth progress
+    }, 100);
 
     return () => {
       if (playbackTimeIntervalRef.current) {
@@ -381,67 +389,42 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
         playbackTimeIntervalRef.current = null;
       }
     };
-  }, [videoInfo, isReady, startTime, endTime, isPaused, onPlaybackTimeUpdate]);
-
-  // Control pause/play state
-  useEffect(() => {
-    if (!videoInfo || !isReady || videoInfo.platform !== 'youtube') return;
-
-    const iframe = iframeRef.current;
-    if (iframe && iframe.contentWindow) {
-      try {
-        iframe.contentWindow.postMessage(
-          JSON.stringify({
-            event: 'command',
-            func: isPaused ? 'pauseVideo' : 'playVideo',
-            args: [],
-          }),
-          'https://www.youtube.com'
-        );
-      } catch (error) {
-        console.error('Error controlling YouTube playback:', error);
-      }
-    }
-  }, [videoInfo, isReady, isPaused]);
+  }, [videoInfo, isReady, startTime, endTime, onPlaybackTimeUpdate]);
 
   // Toggle mute/unmute
   const handleToggleMute = () => {
     setIsMuted(prev => !prev);
   };
 
-  // Toggle pause/play
-  const handleTogglePause = () => {
-    setIsPaused(prev => !prev);
-  };
-
   const formatDate = (dateString: string): string => {
     if (!dateString) return '';
-    // Check if it's already in mm/dd format
-    if (/^\d{2}\/\d{2}$/.test(dateString)) {
+    try {
+      // Input is MM/DD/YYYY — parse manually to avoid timezone shifts
+      const parts = dateString.split('/');
+      const month = parseInt(parts[0], 10);
+      const day = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10) || new Date().getFullYear();
+      if (!month || !day) return dateString;
+      const date = new Date(year, month - 1, day);
+      if (isNaN(date.getTime())) return dateString;
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'short' }); // "Sat"
+      const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' }); // "Mar"
+      return `${weekday}, ${monthAbbr} ${day}`;
+    } catch (e) {
       return dateString;
     }
-    // Try to parse as ISO date or other date format
-    try {
-      const date = new Date(dateString);
-      if (!isNaN(date.getTime())) {
-        const month = date.getMonth() + 1; // getMonth() returns 0-11
-        const day = date.getDate();
-        // Format as mm/dd
-        return `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
-      }
-    } catch (e) {
-      // If parsing fails, return as-is
-    }
-    return dateString;
   };
 
   const formatTime = (timeString: string): string => {
     if (!timeString) return '';
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'pm' : 'am';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}${minutes !== '00' ? `:${minutes}` : ''}${ampm}`;
+    // timeString is like "5:00 PM" or "5:30 AM"
+    const upper = timeString.toUpperCase();
+    const period = upper.includes('PM') ? 'pm' : 'am';
+    const timePart = timeString.replace(/[AaPp][Mm]/g, '').trim(); // strip AM/PM
+    const [hoursStr, minutesStr = '00'] = timePart.split(':');
+    const displayHour = parseInt(hoursStr, 10);
+    const minutes = minutesStr.trim();
+    return `${displayHour}${minutes !== '00' ? `:${minutes}` : ''}${period}`;
   };
 
   // Truncate description to 160 characters for preview
@@ -462,63 +445,55 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
           {/* Media Frame Section with Placeholder */}
           <div className={styles.mediaFrame}>
             <div className={styles.videoContainer}>
-              <div className={styles.placeholder}>
-                <Typography variant="body-md" color="neutral-600">
-                  Load a video to see preview
-                </Typography>
-              </div>
+              <div className={styles.placeholder} />
             </div>
             
             {/* Gradient Overlay (Scrim) */}
             <div className={styles.gradientOverlay} />
             
-            {/* Event Title Overlay */}
-            <div className={styles.titleOverlay}>
+            {/* Title / date / location — anchored 21px from frame bottom */}
+            <div className={styles.titleStack}>
               <h1 className={styles.eventTitle}>
                 {eventData?.title || 'Event title'}
               </h1>
-            </div>
-            
-            {/* Date and Time Overlay */}
-            <div className={styles.dateTimeOverlay}>
-              <span className={styles.dateTime}>
-                {eventData?.date ? formatDate(eventData.date) : 'Date'}
-              </span>
-              <svg 
-                className={styles.dot}
-                width="3"
-                height="3"
-                viewBox="0 0 3 3"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
-              </svg>
-              <span className={styles.dateTime}>
-                {eventData?.time ? formatTime(eventData.time) : 'Time'}
-              </span>
-            </div>
-            
-            {/* Venue/Location Overlay */}
-            <div className={styles.locationOverlay}>
-              <span className={styles.location}>
-                {eventData?.venue || 'Venue'}
-              </span>
+              <div className={styles.dateTimeLine}>
+                <span className={styles.dateTime}>
+                  {eventData?.startDate ? formatDate(eventData.startDate) : 'Date'}
+                </span>
+                <svg
+                  className={styles.dot}
+                  width="3"
+                  height="3"
+                  viewBox="0 0 3 3"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
+                </svg>
+                <span className={styles.dateTime}>
+                  {eventData?.startTime ? formatTime(eventData.startTime) : 'Time'}
+                </span>
+              </div>
+              <div className={styles.locationLine}>
+                <span className={styles.location}>
+                  {eventData?.venue || 'Location'}
+                </span>
+              </div>
             </div>
           </div>
-          
+
           {/* Content Section - 160 characters event summary */}
           <div className={styles.contentSection}>
             <div className={styles.description}>
               <Typography variant="body-md" color="neutral-700">
-                {truncateDescription(eventData?.description || '160 characters event summary. 160 characters event summary. 160 characters event summary.')}
+                {truncateDescription(eventData?.summary || 'Event summary')}
               </Typography>
             </div>
           </div>
           
           {/* Footer Section */}
           <div className={styles.footer}>
-            <div>
+            <div className={styles.footerLeft}>
               <div className={styles.priceButtonWrapper}>
                 <Button variant="primary" className={styles.priceButton}>
                   From $-
@@ -545,14 +520,25 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
                   </svg>
                 </button>
               </div>
-            </div>
-            <button className={styles.avatarButton} aria-label="Profile" type="button">
+            </div>{/* end footerLeft */}
+            <button
+              className={styles.avatarButton}
+              aria-label="Profile"
+              type="button"
+              onClick={displayLogo ? onLogoClick : undefined}
+              style={{ cursor: displayLogo ? 'pointer' : 'default' }}
+            >
               {displayLogo ? (
-                <img 
-                  src={displayLogo} 
-                  alt="Organizer logo"
-                  className={styles.organizerLogo}
-                />
+                <div className={styles.logoCircle}>
+                  <img
+                    src={displayLogo}
+                    alt="Organizer logo"
+                    className={styles.organizerLogoImg}
+                    style={{
+                      transform: `translate(${logoAdjust?.x ?? 0}px, ${logoAdjust?.y ?? 0}px) scale(${logoAdjust?.scale ?? 1})`,
+                    }}
+                  />
+                </div>
               ) : (
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="20" cy="20" r="20" fill="#E5E5E5"/>
@@ -587,94 +573,65 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
           
           {/* Gradient Overlay (Scrim) */}
           <div className={styles.gradientOverlay} />
-          
-          {/* Pause/Play Icon Button - Center */}
-          <button
-            className={styles.playPauseButton}
-            aria-label={isPaused ? "Play video" : "Pause video"}
-            type="button"
-            onClick={handleTogglePause}
-          >
-            {isPaused ? (
-              // Play icon
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5V19L19 12L8 5Z" fill="white" />
-              </svg>
-            ) : (
-              // Pause icon
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 4H10V20H6V4Z" fill="white" />
-                <path d="M14 4H18V20H14V4Z" fill="white" />
-              </svg>
-            )}
-          </button>
-          
-          {/* Mute/Unmute Icon Button - Top Right */}
-          <button
-            className={styles.muteButton}
-            aria-label={isMuted ? "Unmute video (play sound)" : "Mute video"}
-            type="button"
-            onClick={handleToggleMute}
-          >
-            {isMuted ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 2L5 6H2v8h3l6 4V2z" fill="white"/>
-                <path d="M14 7l4 4m0-4l-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 2L5 6H2v8h3l6 4V2z" fill="white"/>
-                <path d="M14 7l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              </svg>
-            )}
-          </button>
-          
-          {/* Event Title Overlay */}
-          <div className={styles.titleOverlay}>
+
+          {/* Title / date / location — anchored 21px from frame bottom */}
+          <div className={styles.titleStack}>
             <h1 className={styles.eventTitle}>
               {eventData?.title || 'Event title'}
             </h1>
-          </div>
-          
-          {/* Date and Time Overlay */}
-          <div className={styles.dateTimeOverlay}>
-            <span className={styles.dateTime}>
-              {eventData?.date ? formatDate(eventData.date) : 'Date'}
-            </span>
-            <svg 
-              className={styles.dot}
-              width="3"
-              height="3"
-              viewBox="0 0 3 3"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
-            </svg>
-            <span className={styles.dateTime}>
-              {eventData?.time ? formatTime(eventData.time) : 'Time'}
-            </span>
-          </div>
-          
-          {/* Venue/Location Overlay */}
-          <div className={styles.locationOverlay}>
-            <span className={styles.location}>
-              {eventData?.venue || 'Venue'}
-            </span>
+            <div className={styles.dateTimeLine}>
+              <span className={styles.dateTime}>
+                {eventData?.startDate ? formatDate(eventData.startDate) : 'Date'}
+              </span>
+              <svg
+                className={styles.dot}
+                width="3"
+                height="3"
+                viewBox="0 0 3 3"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" />
+              </svg>
+              <span className={styles.dateTime}>
+                {eventData?.startTime ? formatTime(eventData.startTime) : 'Time'}
+              </span>
+            </div>
+            <div className={styles.locationLine}>
+              <span className={styles.location}>
+                {eventData?.venue || 'Location'}
+              </span>
+            </div>
           </div>
         </div>
-        
+
+        {/* Sound Icon Button — sibling of mediaFrame so it's above the iframe compositing layer */}
+        <button
+          className={`${styles.muteButton} ${!isMuted ? styles.muteButtonActive : ''}`}
+          aria-label={isMuted ? 'Enable sound' : 'Mute video'}
+          type="button"
+          onClick={handleToggleMute}
+        >
+          <img
+            src={isMuted ? '/icons/Icon_Sound.png' : '/icons/Icon_Sound_unmuted.png'}
+            width={32}
+            height={32}
+            alt=""
+          />
+        </button>
+
         {/* Content Section - 160 characters event summary */}
         <div className={styles.contentSection}>
           <div className={styles.description}>
             <Typography variant="body-md" color="neutral-700">
-              {truncateDescription(eventData?.description || '160 characters event summary. 160 characters event summary. 160 characters event summary.')}
+              {truncateDescription(eventData?.summary || 'Event summary')}
             </Typography>
           </div>
         </div>
-        
+
         {/* Footer Section */}
         <div className={styles.footer}>
+            <div className={styles.footerLeft}>
             <div className={styles.priceButtonWrapper}>
               <Button variant="primary" className={styles.priceButton}>
                 From $-
@@ -701,13 +658,25 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
                 </svg>
               </button>
             </div>
-            <button className={styles.avatarButton} aria-label="Profile" type="button">
+            </div>{/* end footerLeft */}
+            <button
+              className={styles.avatarButton}
+              aria-label="Profile"
+              type="button"
+              onClick={displayLogo ? onLogoClick : undefined}
+              style={{ cursor: displayLogo ? 'pointer' : 'default' }}
+            >
               {displayLogo ? (
-                <img 
-                  src={displayLogo} 
-                  alt="Organizer logo"
-                  className={styles.organizerLogo}
-                />
+                <div className={styles.logoCircle}>
+                  <img
+                    src={displayLogo}
+                    alt="Organizer logo"
+                    className={styles.organizerLogoImg}
+                    style={{
+                      transform: `translate(${logoAdjust?.x ?? 0}px, ${logoAdjust?.y ?? 0}px) scale(${logoAdjust?.scale ?? 1})`,
+                    }}
+                  />
+                </div>
               ) : (
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="20" cy="20" r="20" fill="#E5E5E5"/>
@@ -721,4 +690,3 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
       </div>
   );
 };
-

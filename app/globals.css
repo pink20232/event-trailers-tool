@@ -1,24 +1,118 @@
-/* Explicit CSS variable definitions for Marmalade Design System */
-/* This ensures Cursor browser preview resolves colors correctly */
+/* ============================================================
+   Marmalade GEN3 Design System — Token Layer
+   Source: Figma (tAXj2iJZlp0B4JZufx9EGE + bMbnylfOWFK9jaISGAM8Xu)
+   Spacing & radius: defined here (not in Figma file)
+   ============================================================ */
 :root {
-  /* Neutral colors - matching Marmalade Design System */
-  --color-neutral-25: #fafafa;
-  --color-neutral-50: #fafafa;
+
+  /* ── Foreground / Text ───────────────────────────────────── */
+  --marm-color-fg-base:      #161719;
+  --marm-color-fg-secondary: #404040;
+  --marm-color-fg-tertiary:  #696c71;
+  --marm-color-fg-disabled:  #a3a3a3;
+  --marm-color-fg-on-dark:   #ffffff;
+
+  /* ── Border ─────────────────────────────────────────────── */
+  --marm-color-border-base:   rgba(25, 22, 19, 0.1);
+  --marm-color-border-strong: rgba(25, 22, 19, 0.3);
+
+  /* ── Background ─────────────────────────────────────────── */
+  --marm-color-bg-canvas:  #F5F5F0;   /* warm off-white — Eventbrite base */
+  --marm-color-bg-surface: #ffffff;
+  --marm-color-bg-overlay: rgba(22, 23, 25, 0.6);
+
+  /* ── Brand secondary (lime green — "GOING FAST" badge) ──── */
+  --marm-color-brand-secondary-bg:     #ceff58;
+  --marm-color-brand-secondary-border: rgba(77, 100, 0, 0.3);
+  --marm-color-brand-secondary-fg:     #000000;
+
+  /* ── Interactive CTA ────────────────────────────────────── */
+  --marm-color-action-bg-base:   #161719;
+  --marm-color-action-bg-hover:  #25272b;
+  --marm-color-action-bg-active: #3d3f43;
+  --marm-color-action-fg:        #ffffff;
+
+  /* ── Neutral scale (legacy compat) ──────────────────────── */
+  --color-neutral-25:  #fafafa;
+  --color-neutral-50:  #fafafa;
   --color-neutral-100: #f5f5f5;
   --color-neutral-200: #e5e5e5;
   --color-neutral-300: #d4d4d4;
   --color-neutral-400: #a3a3a3;
-  --color-neutral-500: #a3a3a3;
+  --color-neutral-500: #737373;
   --color-neutral-600: #525252;
   --color-neutral-700: #404040;
   --color-neutral-800: #262626;
   --color-neutral-900: #171717;
 
-  /* Primary colors - override to black for buttons */
-  --color-primary-50: #eef2ff;
+  /* Primary (legacy compat) */
+  --color-primary-50:  #eef2ff;
   --color-primary-400: #818cf8;
-  --color-primary-600: rgba(0, 0, 0, 1);
   --color-primary-500: rgba(0, 0, 0, 1);
+  --color-primary-600: rgba(0, 0, 0, 1);
+
+  /* ── Typography — Body (Founders Grotesk R, weight 400) ─── */
+  /* Scale: small breakpoints — same px values at large (fluid via CSS var) */
+  --font-size-body-xs:  9px;   /* utility only — avoid if possible */
+  --font-size-body-sm:  12px;
+  --font-size-body-md:  14px;  /* ← default body size */
+  --font-size-body-lg:  18px;
+  --font-size-body-xl:  21px;
+  --font-size-body-2xl: 24px;
+
+  /* Large-breakpoint overrides (applied via media query below) */
+  --font-size-body-xs--lg:  11px;
+  --font-size-body-sm--lg:  13px;
+  --font-size-body-md--lg:  15px;
+  --font-size-body-lg--lg:  19px;
+  --font-size-body-xl--lg:  22px;
+  --font-size-body-2xl--lg: 26px;
+
+  /* Body line heights */
+  --line-height-body:      1.333;  /* default */
+  --line-height-body-text: 1.5;    /* long-form / wrapping text */
+
+  /* ── Typography — Signal (Bold, uppercase, tracked) ─────── */
+  /* Extracted from Badge component: signal/sm */
+  --font-size-signal-xs: 11px;
+  --font-size-signal-sm: 12px;
+  --font-size-signal-md: 13px;
+  --font-weight-signal:  700;
+  --line-height-signal:  1.333;
+
+  /* ── Letter spacing ─────────────────────────────────────── */
+  --letter-spacing-plus-1: 0.1px;  /* body/md and up */
+  --letter-spacing-plus-2: 0.2px;  /* body/sm and below, signal */
+
+  /* ── Spacing scale (defined here — not in Figma file) ───── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Border radius (defined here — not in Figma file) ───── */
+  --radius-sm:   4px;     /* badge, compact components */
+  --radius-md:   8px;     /* inputs, chips */
+  --radius-lg:   12px;    /* cards */
+  --radius-xl:   16px;    /* large cards, modals */
+  --radius-pill: 9999px;  /* buttons, filter chips */
+}
+
+/* Large-breakpoint type overrides */
+@media (min-width: 768px) {
+  :root {
+    --font-size-body-xs:  var(--font-size-body-xs--lg);
+    --font-size-body-sm:  var(--font-size-body-sm--lg);
+    --font-size-body-md:  var(--font-size-body-md--lg);
+    --font-size-body-lg:  var(--font-size-body-lg--lg);
+    --font-size-body-xl:  var(--font-size-body-xl--lg);
+    --font-size-body-2xl: var(--font-size-body-2xl--lg);
+  }
 }
 
 * {
@@ -268,8 +362,8 @@ div:has(> label[style*="display:block"]):has(> input[placeholder]) {
   flex-direction: column !important;
 }
 
-/* Universal rule for any div containing both label and input */
-div:has(label):has(input) {
+/* Scoped to divs with direct label + input children only (avoids clobbering outer flex containers) */
+div:has(> label):has(> input) {
   gap: 8px !important;
 }
 

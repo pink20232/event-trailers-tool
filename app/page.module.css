@@ -1,347 +1,314 @@
+/* ── Root layout ─────────────────────────────────────────── */
 .main {
-  min-height: 100vh;
-  max-height: 100vh;
-  background: #fafafa;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  background: var(--marm-color-bg-canvas, #F5F5F0);
 }
 
-.layout {
+/* ── Top Nav ─────────────────────────────────────────────── */
+.topNav {
   display: flex;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.canvasArea {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #f5f5f5;
-  min-height: 0;
-  position: relative;
-  transition: margin-left 0.3s ease;
-}
-
-.canvasArea.dialogOpen {
-  margin-left: 400px; /* Shift right to make room for dialog next to sidebar */
-}
-
-.viewToggleContainer {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(245, 245, 245, 1);
-  color: rgba(245, 245, 245, 1);
+  align-items: center;
   padding: 16px 24px;
+  background: var(--marm-color-bg-canvas, #F5F5F0);
+  flex-shrink: 0;
+  /* subtle bottom border so it reads as a header */
+  border-bottom: 1px solid rgba(25, 22, 19, 0.08);
+}
+
+.navLeading {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.navTitle {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #161719;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(22, 23, 25, 0.07);
+}
+
+.navTrailing {
+  display: flex;
   align-items: center;
   gap: 24px;
   flex-shrink: 0;
 }
 
-.backButtonWrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.backButton {
-  display: flex;
+/* Preview outline button */
+.previewBtn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  width: auto; /* Hug style like Done button */
-  min-width: auto;
-}
-
-/* Ensure Gen 3 button dimensions */
-.backButton button,
-.backButton :global(button) {
-  /* Gen 3 MD base button: 40px height, 10px padding (all sides) */
-  height: 40px !important;
-  min-height: 40px !important;
-  padding: 10px 10px !important;
-  border-radius: 9999px !important;
-  font-size: 15px !important;
-  font-weight: 400 !important;
-  line-height: 1.333 !important;
-  letter-spacing: 0.1px !important;
-}
-
-.backIcon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  color: inherit; /* Inherit color from button */
-}
-
-/* Ensure back button text and icon are black - override all global styles */
-.backButtonWrapper button,
-.backButtonWrapper :global(button),
-.backButton button,
-.backButton :global(button) {
-  color: rgba(0, 0, 0, 1) !important; /* Black color for ghost button */
-  background-color: transparent !important;
-  background: transparent !important;
-  border-color: rgb(229, 231, 235) !important;
-}
-
-.backButtonWrapper button svg,
-.backButtonWrapper :global(button) svg,
-.backButton button svg,
-.backButton :global(button) svg {
-  color: rgba(0, 0, 0, 1) !important; /* Black color for icon */
-  stroke: rgba(0, 0, 0, 1) !important; /* Ensure stroke is black */
-  fill: none !important; /* Ensure no fill */
-}
-
-.backButtonWrapper button path,
-.backButtonWrapper :global(button) path,
-.backButton button path,
-.backButton :global(button) path {
-  stroke: rgba(0, 0, 0, 1) !important; /* Ensure path stroke is black */
-  fill: none !important; /* Ensure no fill */
-}
-
-.backButtonWrapper button:hover,
-.backButtonWrapper :global(button):hover,
-.backButton button:hover,
-.backButton :global(button):hover {
-  color: rgba(0, 0, 0, 0.8) !important; /* Darker black on hover */
-  background-color: rgba(0, 0, 0, 0.05) !important; /* Light black background on hover */
-  background: rgba(0, 0, 0, 0.05) !important;
-}
-
-.backButtonWrapper button:hover svg,
-.backButtonWrapper :global(button):hover svg,
-.backButton button:hover svg,
-.backButton :global(button):hover svg {
-  color: rgba(0, 0, 0, 0.8) !important;
-  stroke: rgba(0, 0, 0, 0.8) !important;
-}
-
-.backButtonWrapper button:hover path,
-.backButtonWrapper :global(button):hover path,
-.backButton button:hover path,
-.backButton :global(button):hover path {
-  stroke: rgba(0, 0, 0, 0.8) !important;
-}
-
-.canvasContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  padding: 24px;
-  gap: 24px;
-  min-height: 0;
-  color: rgba(255, 255, 255, 1);
-  box-sizing: content-box;
-}
-
-.editorSection {
-  width: 100%;
-  max-width: 800px;
-  flex-shrink: 0;
-  align-self: center;
-  position: relative;
-  z-index: 5;
-  margin-bottom: 24px; /* Space above back button */
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.videoInputSection {
-  padding: 24px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid #161719;
+  border-radius: 9999px;
   background: transparent;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  color: #161719;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.333;
+  letter-spacing: 0.27px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.previewBtn:hover {
+  background: rgba(22, 23, 25, 0.05);
+}
+
+/* Publish filled button */
+.publishBtn {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  background: #f5f5f5;
-  z-index: 10;
-  gap: 0;
+  height: 40px;
+  padding: 0 16px;
+  background: #161719;
+  border: none;
+  border-radius: 9999px;
+  color: white;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.333;
+  letter-spacing: 0.27px;
+  cursor: pointer;
+  min-width: 72px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
 }
 
-.videoInputWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  background: white;
-  padding: 16px 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  width: 100%;
+.publishBtn:hover:not(:disabled) {
+  background: #25272b;
 }
 
-.publishButtonContainer {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 11;
+.publishBtn:active:not(:disabled) {
+  background: #3d3f43;
 }
 
-.bannerContainer {
-  position: absolute;
-  top: 80px; /* Position underneath publish button (24px top + 44px button height + 12px gap) */
-  right: 24px;
-  z-index: 11;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.banner {
-  padding: 14px;
-  background: var(--color-neutral-50, #fafafa);
-  border: 1px solid var(--color-neutral-200, #e5e5e5);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 264px; /* Match the width from the DOM path */
-}
-
-.bannerHeadline {
-  color: rgba(0, 0, 0, 1) !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.bannerDescription {
-  color: rgba(82, 82, 82, 1) !important;
-  font-size: 14px !important;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.bannerImage {
-  margin-top: 10px;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 8px;
-  height: 80px; /* Matches the image aspect ratio (224x80px) */
-}
-
-.bannerImageElement {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover; /* Fill the container while maintaining aspect ratio */
-  object-position: center;
-  border-radius: 4px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-.publishButton {
-  min-width: 120px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Target the button element inside publishButtonContainer - highest specificity */
-.publishButtonContainer button,
-.publishButtonContainer :global(button),
-.publishButtonContainer > button,
-.publishButtonContainer > :global(button) {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  /* Gen 3 LG base button dimensions - matching Figma design */
-  height: 44px !important;
-  min-height: 44px !important;
-  max-height: 44px !important;
-  padding: 12px 20px !important;
-  border-radius: 9999px !important;
-  font-size: 16px !important;
-  font-weight: 500 !important;
-  line-height: 1.333 !important;
-  letter-spacing: 0.1px !important;
-  text-align: center !important;
-  background-color: rgba(0, 0, 0, 1) !important;
-  background: rgba(0, 0, 0, 1) !important;
-  border-color: rgba(0, 0, 0, 1) !important;
-  color: rgba(255, 255, 255, 1) !important;
-}
-
-/* Ensure icon and text are perfectly centered - matching Figma design */
-.publishButtonContainer button svg,
-.publishButtonContainer :global(button) svg {
-  display: block !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-  width: 16px !important;
-  height: 16px !important;
-}
-
-/* Hover state */
-.publishButtonContainer button:hover,
-.publishButtonContainer :global(button):hover {
-  background-color: #25272b !important;
-  background: #25272b !important;
-}
-
-.publishButton:disabled {
-  opacity: 0.5;
+.publishBtn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
-  .layout {
-    flex-direction: column;
-  }
-  
-  .viewToggleContainer {
-    padding: 12px 16px;
-  }
-  
-  
-  .canvasContent {
-    padding: 16px;
-  }
-  
-  .videoInputSection {
-    padding: 16px;
-  }
-  
-  .videoInputWrapper {
-    padding: 12px 16px;
-    max-width: 100%;
-  }
-  
-  .viewToggleContainer {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .publishButton {
-    width: auto;
-    min-width: 120px;
-  }
+/* ── Body (3-column flex) ────────────────────────────────── */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
 
-  .canvasArea.dialogOpen {
-    margin-left: 0; /* No margin on mobile, dialog takes full width */
-  }
+/* ── Left — Stepper panel ────────────────────────────────── */
+.stepperPanel {
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  background: var(--marm-color-bg-canvas, #F5F5F0);
+  padding: 48px 24px;
+  overflow-y: auto;
+}
+
+/* ── Two-column stepper: pill + labels ───────────────────── */
+.stepper {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* White pill — contains ONLY circles and dots */
+.indicatorPill {
+  background: white;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  flex-shrink: 0;
+  width: 24px;
+  height: 224px;
+}
+
+/* Rows inside the pill */
+.pillStepRow {
+  width: 100%;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pillSubRow {
+  width: 100%;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Labels column — sits to the right of the pill */
+.labelCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 0;
+  height: 224px;
+}
+
+.labelStepRow {
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.labelSubRow {
+  height: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.stepCircle {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: #161719;
+  letter-spacing: 0.27px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.stepCircleActive {
+  background: #161719;
+  color: white;
+}
+
+.stepLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #161719;
+  letter-spacing: 0.27px;
+  white-space: nowrap;
+}
+
+.stepLabelActive {
+  color: #161719;
+}
+
+/* Sub-step rows — indent to align dot below the circle center */
+.subStep {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-left: 6px;   /* visual indent: dot sits under the step circle */
+}
+
+/* Active sub-dot: filled black */
+.subDot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  border-radius: 9999px;
+  background: #161719;
+  flex-shrink: 0;
+}
+
+/* Inactive sub-dot: outline ring */
+.subDotInactive {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1.5px solid rgba(25, 22, 19, 0.5);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.subLabel {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.333;
+  color: #3d3f43;
+  letter-spacing: 0.22px;
+  white-space: nowrap;
+}
+
+/* ── Center — Phone + video editor ──────────────────────── */
+.centerPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 24px;
+  gap: 24px;
+  min-height: 0;
+  background: var(--marm-color-bg-canvas, #F5F5F0);
+}
+
+.videoEditorWrap {
+  width: 672px;
+  flex-shrink: 0;
+  overflow: visible;
+  margin-top: -224px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Right — Form panel ──────────────────────────────────── */
+.formPanelOuter {
+  width: 424px;
+  min-width: 424px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--marm-color-bg-canvas, #F5F5F0);
+  box-sizing: border-box;
 }

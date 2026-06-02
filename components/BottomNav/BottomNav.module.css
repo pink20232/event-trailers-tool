@@ -1,0 +1,64 @@
+/* GEN3 BottomNav — Navigation Patterns 🟢 */
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color: var(--marm-color-bg-surface, #ffffff);
+  border-top: 1px solid var(--marm-color-border-base, rgba(25, 22, 19, 0.1));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  height: 100%;
+  padding: var(--space-2, 8px) var(--space-1, 4px) 0;
+  color: var(--marm-color-fg-tertiary, #696c71);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:hover {
+  color: var(--marm-color-fg-secondary, #404040);
+}
+
+.tab.active {
+  color: var(--marm-color-fg-base, #161719);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+/* Active tab icon — filled style via stroke-width increase */
+.active .icon svg path {
+  stroke-width: 2.25;
+}
+
+.label {
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: var(--letter-spacing-plus-2, 0.2px);
+}
+
+.active .label {
+  font-weight: 500;
+}
