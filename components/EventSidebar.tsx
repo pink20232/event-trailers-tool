@@ -122,10 +122,19 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
         </div>
       </div>
 
-      {/* Event Video */}
+      {/* Event Trailer */}
       <div className={styles.card}>
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionLabel}>Event video</span>
+          <span className={styles.sectionLabel}>Event trailer</span>
+          <span className={styles.recommendedBadge}>Recommended</span>
+        </div>
+        {/* Boost alert — above the URL input per new design */}
+        <div className={styles.blueAlert}>
+          <span className={styles.alertIconWrap}><FlameIcon /></span>
+          <div className={styles.alertText}>
+            <p className={styles.alertTitle}>Boost sales with video</p>
+            <p className={styles.alertBody}>Events like yours sell 16% more tickets when video is added to the listing.</p>
+          </div>
         </div>
         <div className={styles.videoInputGroup}>
           <div className={`${styles.iconField} ${isVideoLoading ? styles.loadingField : ''} ${videoUrlError || embeddingBlocked ? styles.iconFieldError : ''}`}>
@@ -136,7 +145,6 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
                 : 'default'
               } />
             </div>
-            {/* Show URL as truncated link when loaded; editable input otherwise */}
             {videoUrl && (videoInfo || videoUrlError) ? (
               <a
                 href={videoInfo ? videoInfo.originalUrl : undefined}
@@ -155,7 +163,6 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
                 placeholder={isVideoLoading ? 'Loading video…' : 'Paste video URL'}
               />
             )}
-            {/* Delete button — shown whenever a URL has been entered */}
             {videoUrl && (
               <button
                 className={styles.deleteBtnImg}
@@ -177,7 +184,7 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
           )}
           {!videoInfo && !videoUrlError && (
             <p className={styles.helperText}>
-              Already shared on YouTube? Paste the link and we&apos;ll create a preview clip for your event card to show the vibe.
+              Already shared on social? Paste the link and we&apos;ll create a preview clip for your event card to show the vibe.
             </p>
           )}
         </div>
@@ -186,13 +193,6 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
             <UploadIcon />
           </div>
           <span className={styles.iconPlaceholder}>Upload video</span>
-        </div>
-        <div className={styles.blueAlert}>
-          <span className={styles.alertIconWrap}><FlameIcon /></span>
-          <div className={styles.alertText}>
-            <p className={styles.alertTitle}>Boost sales with video</p>
-            <p className={styles.alertBody}>Events like yours sell 16% more tickets when video is added to the listing.</p>
-          </div>
         </div>
       </div>
 

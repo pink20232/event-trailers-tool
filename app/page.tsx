@@ -251,36 +251,60 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Center — Form (616px) */}
+          {/* Vertical divider: stepper | center */}
+          <div className={styles.colDivider} />
+
+          {/* Center — Form */}
           <div className={styles.centerPanel}>
-            <div className={styles.formHeader}>
+            {/* Section header */}
+            <div className={styles.panelHeaderSection}>
               <h1 className={styles.formHeading}>Create event discovery card</h1>
               <p className={styles.formSubheading}>Preview how your event appears in the discovery feed before publishing.</p>
             </div>
-            <EventSidebar
-              eventData={eventData}
-              onEventDataChange={(newData) => {
-                setEventData(newData);
-                setPreviewLogo(newData.organizerLogo);
-                if (!newData.organizerLogo) {
-                  setLogoAdjust({ scale: 1, x: 0, y: 0 });
-                  setIsLogoAdjusting(false);
-                }
-              }}
-              onVideoLoad={handleVideoLoad}
-              onVideoRemove={handleVideoRemove}
-              videoInfo={videoInfo}
-              embeddingBlocked={embeddingBlocked}
-            />
-            <div className={styles.nextStepRow}>
-              <button className={styles.nextStepBtn} type="button">
-                Next step →
-              </button>
+            <div className={styles.panelHeaderDivider} />
+            {/* Form content */}
+            <div className={styles.formContent}>
+              <EventSidebar
+                eventData={eventData}
+                onEventDataChange={(newData) => {
+                  setEventData(newData);
+                  setPreviewLogo(newData.organizerLogo);
+                  if (!newData.organizerLogo) {
+                    setLogoAdjust({ scale: 1, x: 0, y: 0 });
+                    setIsLogoAdjusting(false);
+                  }
+                }}
+                onVideoLoad={handleVideoLoad}
+                onVideoRemove={handleVideoRemove}
+                videoInfo={videoInfo}
+                embeddingBlocked={embeddingBlocked}
+              />
+              <div className={styles.buttonGroup}>
+                <button className={styles.backBtn} type="button">
+                  <BackArrowIcon />
+                  Back
+                </button>
+                <button className={styles.nextStepBtn} type="button">
+                  Next step
+                  <NextArrowIcon />
+                </button>
+              </div>
             </div>
           </div>
 
+          {/* Vertical divider: center | phone */}
+          <div className={styles.colDivider} />
+
           {/* Right — Phone preview */}
           <div className={styles.phonePanel}>
+            {/* Section header */}
+            <div className={styles.panelHeaderSection}>
+              <h2 className={styles.formHeading}>Preview</h2>
+              <p className={styles.formSubheading}>See how your event card looks to attendees in the discovery feed.</p>
+            </div>
+            <div className={styles.panelHeaderDivider} />
+            {/* Phone content */}
+            <div className={styles.phonePanelContent}>
             <MobileMockup isMobile>
               <EventCardPreview
                 videoInfo={videoInfo}
@@ -312,6 +336,7 @@ export default function Home() {
                 suggestedStartTime={suggestedStartTime}
               />
             </div>
+            </div>{/* /phonePanelContent */}
           </div>
         </div>
       </main>
@@ -361,4 +386,20 @@ function XIcon() {
 
 function EyeIcon() {
   return <img src="/icons/Icon_Preview.png" style={{ display: 'block', height: 20, width: 'auto' }} alt="" />;
+}
+
+function BackArrowIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 12H5M5 12L11 6M5 12L11 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function NextArrowIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }

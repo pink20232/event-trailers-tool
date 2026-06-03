@@ -36,8 +36,28 @@
 /* Section title + subtitle stacked */
 .sectionHeader {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Pink "Recommended" badge */
+.recommendedBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 4px;
+  background: #ffc2ec;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.03);
+  font-family: 'Founders Grotesk R', 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.27px;
+  text-transform: uppercase;
+  color: #161719;
+  white-space: nowrap;
 }
 
 .sectionLabel {
