@@ -416,14 +416,14 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  padding: 48px 48px 0;
+  padding: 24px 48px 0;
 }
 
 /* Fixed-size container — phone + trailer absolutely inside */
 .phoneAndTrailerContainer {
   position: relative;
   width: 557px;
-  height: 690px;
+  height: 730px;
   flex-shrink: 0;
 }
 
@@ -435,10 +435,10 @@
   transform: translateX(-50%);
 }
 
-/* Trailer card — 24px below event card footer, bottom aligns with phone bottom */
+/* Trailer card — sits right below the phone frame, left/right aligned to phone */
 .trailerPos {
   position: absolute;
-  top: 490px;
+  top: 530px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
