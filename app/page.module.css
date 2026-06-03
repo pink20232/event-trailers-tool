@@ -133,7 +133,7 @@
 
 /* ── Left — Stepper panel ────────────────────────────────── */
 .stepperPanel {
-  flex: 467;
+  flex: 360;
   min-width: 0;
   background: var(--marm-color-bg-canvas, #F5F5F0);
   padding: 48px 24px;
@@ -315,7 +315,7 @@
 
 .formHeading {
   font-family: 'Founders Grotesk R', 'Inter', sans-serif;
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 500;
   line-height: 1.25;
   color: #161719;
@@ -415,16 +415,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto;
-  padding: 48px 24px 24px;
-  gap: 24px;
+  overflow: hidden;
+  padding: 16px 24px 0;
+  gap: 0;
 }
 
 .videoEditorWrap {
   width: 468px;
   flex-shrink: 0;
   overflow: visible;
-  margin-top: -224px;
+  margin-top: -260px;
   position: relative;
   z-index: 10;
 }

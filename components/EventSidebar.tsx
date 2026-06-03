@@ -125,8 +125,10 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
       {/* Event Trailer */}
       <div className={styles.card}>
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionLabel}>Event trailer</span>
-          <span className={styles.recommendedBadge}>Recommended</span>
+          <div className={styles.sectionTitleRow}>
+            <span className={styles.sectionLabel}>Event trailer</span>
+            <span className={styles.recommendedBadge}>Recommended</span>
+          </div>
         </div>
         {/* Boost alert — above the URL input per new design */}
         <div className={styles.blueAlert}>

@@ -36,12 +36,19 @@
 /* Section title + subtitle stacked */
 .sectionHeader {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* Pink "Recommended" badge */
+/* Row wrapper used inside sectionHeader when a badge sits beside the label */
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Pink "Recommended" badge — right-aligned via space-between on sectionTitleRow */
 .recommendedBadge {
   display: inline-flex;
   align-items: center;
@@ -58,6 +65,7 @@
   text-transform: uppercase;
   color: #161719;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .sectionLabel {
