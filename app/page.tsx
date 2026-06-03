@@ -303,40 +303,46 @@ export default function Home() {
               <p className={styles.formSubheading}>See how your event card looks to attendees in the discovery feed.</p>
             </div>
             <div className={styles.panelHeaderDivider} />
-            {/* Phone content */}
+            {/* Phone + Trailer — absolutely positioned like Figma */}
             <div className={styles.phonePanelContent}>
-            <MobileMockup isMobile>
-              <EventCardPreview
-                videoInfo={videoInfo}
-                startTime={startTime}
-                endTime={endTime}
-                eventData={eventData}
-                organizerLogo={previewLogo}
-                logoAdjust={logoAdjust}
-                onLogoClick={() => setIsLogoAdjusting(true)}
-                onDurationDetected={handleDurationDetected}
-                onPlaybackTimeUpdate={setCurrentPlaybackTime}
-              />
-            </MobileMockup>
-            {isLogoAdjusting && previewLogo && (
-              <LogoAdjuster
-                logoSrc={previewLogo}
-                adjust={logoAdjust}
-                onChange={setLogoAdjust}
-                onClose={() => setIsLogoAdjusting(false)}
-              />
-            )}
-            <div className={styles.videoEditorWrap}>
-              <VideoEditor
-                videoInfo={videoInfo}
-                isAnalyzing={isAnalyzing}
-                analysisReasons={analysisReasons}
-                duration={videoDuration || 300}
-                onTimeRangeChange={handleTimeRangeChange}
-                suggestedStartTime={suggestedStartTime}
-              />
+              <div className={styles.phoneAndTrailerContainer}>
+                {/* Phone at top */}
+                <div className={styles.phonePos}>
+                  <MobileMockup isMobile>
+                    <EventCardPreview
+                      videoInfo={videoInfo}
+                      startTime={startTime}
+                      endTime={endTime}
+                      eventData={eventData}
+                      organizerLogo={previewLogo}
+                      logoAdjust={logoAdjust}
+                      onLogoClick={() => setIsLogoAdjusting(true)}
+                      onDurationDetected={handleDurationDetected}
+                      onPlaybackTimeUpdate={setCurrentPlaybackTime}
+                    />
+                  </MobileMockup>
+                  {isLogoAdjusting && previewLogo && (
+                    <LogoAdjuster
+                      logoSrc={previewLogo}
+                      adjust={logoAdjust}
+                      onChange={setLogoAdjust}
+                      onClose={() => setIsLogoAdjusting(false)}
+                    />
+                  )}
+                </div>
+                {/* Trailer card — overlaps phone bottom at exactly top: 602px */}
+                <div className={styles.trailerPos}>
+                  <VideoEditor
+                    videoInfo={videoInfo}
+                    isAnalyzing={isAnalyzing}
+                    analysisReasons={analysisReasons}
+                    duration={videoDuration || 300}
+                    onTimeRangeChange={handleTimeRangeChange}
+                    suggestedStartTime={suggestedStartTime}
+                  />
+                </div>
+              </div>
             </div>
-            </div>{/* /phonePanelContent */}
           </div>
         </div>
       </main>

@@ -416,10 +416,40 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  padding: 16px 24px 0;
-  gap: 0;
+  padding: 48px 48px 0;
 }
 
+/* Fixed-size container matching Figma's 802×557px — phone + trailer absolutely inside */
+.phoneAndTrailerContainer {
+  position: relative;
+  width: 557px;
+  height: 802px;
+  flex-shrink: 0;
+}
+
+/* Phone anchored to the top of the container, centered horizontally */
+.phonePos {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Trailer card at exactly top: 602px — overlaps phone bottom by 178px */
+.trailerPos {
+  position: absolute;
+  top: 602px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* Remove MobileMockup's own padding-top inside this layout */
+.phonePos :global(.mobileMockup) {
+  padding-top: 0;
+}
+
+/* videoEditorWrap kept for option-1 compatibility */
 .videoEditorWrap {
   width: 468px;
   flex-shrink: 0;
