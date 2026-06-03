@@ -419,11 +419,11 @@
   padding: 48px 48px 0;
 }
 
-/* Fixed-size container matching Figma's 802×557px — phone + trailer absolutely inside */
+/* Fixed-size container — phone + trailer absolutely inside */
 .phoneAndTrailerContainer {
   position: relative;
   width: 557px;
-  height: 802px;
+  height: 690px;
   flex-shrink: 0;
 }
 
@@ -435,10 +435,10 @@
   transform: translateX(-50%);
 }
 
-/* Trailer card at exactly top: 602px — overlaps phone bottom by 178px */
+/* Trailer card — 24px below event card footer, bottom aligns with phone bottom */
 .trailerPos {
   position: absolute;
-  top: 602px;
+  top: 490px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
