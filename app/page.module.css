@@ -133,8 +133,8 @@
 
 /* ── Left — Stepper panel ────────────────────────────────── */
 .stepperPanel {
-  width: 372px;
-  min-width: 372px;
+  width: 467px;
+  min-width: 467px;
   flex-shrink: 0;
   background: var(--marm-color-bg-canvas, #F5F5F0);
   padding: 48px 24px;
@@ -288,10 +288,11 @@
   align-self: stretch;
 }
 
-/* ── Center — Form column (responsive) ───────────────────── */
+/* ── Center — Form column ────────────────────────────────── */
 .centerPanel {
-  flex: 1;
-  min-width: 0;
+  width: 805px;
+  min-width: 805px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -400,8 +401,8 @@
 
 /* ── Right — Phone preview column ────────────────────────── */
 .phonePanel {
-  width: 494px;
-  min-width: 494px;
+  width: 644px;
+  min-width: 644px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
