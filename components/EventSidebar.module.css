@@ -154,7 +154,8 @@
   border-color: rgba(25, 22, 19, 0.5);
 }
 
-.textareaPlaceholder {
+.textareaPlaceholder,
+.textarea.textareaPlaceholder {
   color: #696c71 !important;
 }
 
