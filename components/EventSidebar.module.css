@@ -497,7 +497,8 @@
 }
 
 .floatingInput::placeholder {
-  color: #a3a3a3;
+  color: #696c71;
+  opacity: 1;
   font-size: 13px;
 }
 
