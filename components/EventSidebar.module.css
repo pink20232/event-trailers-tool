@@ -112,6 +112,7 @@
 
 .field56::placeholder {
   color: #696c71 !important;
+  opacity: 1;
 }
 
 /* ── Textarea ────────────────────────────────────────────── */
@@ -140,6 +141,7 @@
 
 .textarea::placeholder {
   color: #696c71 !important;
+  opacity: 1;
 }
 
 /* Div-based click trigger that looks like the textarea */
@@ -300,6 +302,7 @@
 
 .iconInput::placeholder {
   color: #696c71 !important;
+  opacity: 1;
 }
 
 /* URL display (truncated link when video is loaded/errored) */
