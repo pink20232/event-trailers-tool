@@ -125,13 +125,17 @@
   font-size: 15px;
   font-weight: 400;
   line-height: 1.333;
-  color: #161719;
   background: white;
   box-sizing: border-box;
   outline: none;
   resize: vertical;
   min-height: 96px;
   letter-spacing: 0.15px;
+}
+
+/* Typed text color — only for actual <textarea> elements, not the div trigger */
+textarea.textarea {
+  color: #161719;
 }
 
 .textarea:focus {
@@ -156,8 +160,7 @@
   border-color: rgba(25, 22, 19, 0.5);
 }
 
-.textareaPlaceholder,
-.textarea.textareaPlaceholder {
+.textareaPlaceholder {
   color: #696c71 !important;
 }
 
