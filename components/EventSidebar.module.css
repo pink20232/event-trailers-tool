@@ -111,7 +111,7 @@
 }
 
 .field56::placeholder {
-  color: #696c71;
+  color: #696c71 !important;
 }
 
 /* ── Textarea ────────────────────────────────────────────── */
@@ -139,7 +139,7 @@
 }
 
 .textarea::placeholder {
-  color: #696c71;
+  color: #696c71 !important;
 }
 
 /* Div-based click trigger that looks like the textarea */
@@ -155,7 +155,7 @@
 }
 
 .textareaPlaceholder {
-  color: #696c71;
+  color: #696c71 !important;
 }
 
 /* ── Blue alert ──────────────────────────────────────────── */
@@ -298,7 +298,7 @@
 }
 
 .iconInput::placeholder {
-  color: #696c71;
+  color: #696c71 !important;
 }
 
 /* URL display (truncated link when video is loaded/errored) */
@@ -390,7 +390,7 @@
   font-size: 15px;
   font-weight: 400;
   line-height: 1.333;
-  color: #696c71;
+  color: #696c71 !important;
   letter-spacing: 0.15px;
   white-space: nowrap;
   overflow: hidden;
