@@ -423,7 +423,7 @@
 .phoneAndTrailerContainer {
   position: relative;
   width: 557px;
-  height: 814px;
+  height: 756px;
   flex-shrink: 0;
 }
 
@@ -438,7 +438,7 @@
 /* Trailer card — 24px below event card placeholder + content, 556px wide centered */
 .trailerPos {
   position: absolute;
-  top: 614px;
+  top: 556px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;

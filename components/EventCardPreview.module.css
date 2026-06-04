@@ -2,7 +2,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 154px 24px 24px;
+  padding: 96px 24px 24px;
   background: var(--color-neutral-50, #f5f5f5);
   border-radius: 8px;
 }
