@@ -162,7 +162,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
 
       {/* ── Analyzing state ──────────────────────────────── */}
       {videoInfo && isAnalyzing && (
-        <div className={styles.analyzingWrapper}>
+        <>
           <div className={styles.resultsHeader}>
             <p className={styles.title}>Trailer</p>
             <div className={styles.scrubberRow}>
@@ -178,7 +178,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
           <p className={styles.analyzingCopy}>
             Analyzing video and selecting the recommended moment…
           </p>
-        </div>
+        </>
       )}
 
       {/* ── Results state ────────────────────────────────── */}
