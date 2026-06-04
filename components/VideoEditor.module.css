@@ -148,6 +148,16 @@
   animation: rainbowSlide 2s linear infinite;
 }
 
+/* Wrapper that vertically centers the analyzing state content in the card */
+.analyzingWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  min-height: 0;
+}
+
 /* Copy shown below the scrubber while analyzing */
 .analyzingCopy {
   font-family: 'Founders Grotesk R', 'Inter', sans-serif;

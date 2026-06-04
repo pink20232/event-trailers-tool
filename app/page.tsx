@@ -236,7 +236,7 @@ export default function Home() {
                   <span className={styles.subLabel}>Discovery card</span>
                 </div>
                 <div className={styles.labelSubRow}>
-                  <span className={styles.subLabel}>Details</span>
+                  <span className={styles.subLabel}>Details page</span>
                 </div>
                 <div className={styles.labelStepRow}>
                   <span className={styles.stepLabel}>Add tickets</span>
@@ -259,7 +259,7 @@ export default function Home() {
             {/* Section header */}
             <div className={styles.panelHeaderSection}>
               <h1 className={styles.formHeading}>Create event discovery card</h1>
-              <p className={styles.formSubheading}>Preview how your event appears in the discovery feed before publishing.</p>
+              <p className={styles.formSubheading}>Fill in the basics and see exactly how your event appears to people scrolling the discovery feed.</p>
             </div>
             <div className={styles.panelHeaderDivider} />
             {/* Form content */}
