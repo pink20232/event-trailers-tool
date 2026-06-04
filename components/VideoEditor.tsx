@@ -141,7 +141,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
       {!videoInfo && (
         <>
           <div className={styles.header}>
-            <p className={styles.title}>Trailer</p>
+            <p className={styles.title}>Recommended clip</p>
             <p className={styles.description}>
               Our system analyzes your video to select a 10-second moment that best captures your event&apos;s vibe.
             </p>
@@ -162,9 +162,9 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
 
       {/* ── Analyzing state ──────────────────────────────── */}
       {videoInfo && isAnalyzing && (
-        <div className={styles.analyzingWrapper}>
+        <>
           <div className={styles.resultsHeader}>
-            <p className={styles.title}>Trailer</p>
+            <p className={styles.title}>Recommended clip</p>
             <div className={styles.scrubberRow}>
               <div className={styles.scrubberTrack}>
                 {/* Rainbow fills the full track while scanning */}
@@ -175,10 +175,13 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
               </span>
             </div>
           </div>
-          <p className={styles.analyzingCopy}>
-            Analyzing video and selecting the recommended moment…
-          </p>
-        </div>
+          {/* Copy vertically centered in remaining space */}
+          <div className={styles.analyzingCopyWrap}>
+            <p className={styles.analyzingCopy}>
+              Analyzing video and selecting the recommended moment…
+            </p>
+          </div>
+        </>
       )}
 
       {/* ── Results state ────────────────────────────────── */}
@@ -186,7 +189,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
         <>
           {/* Header row: title + inline scrubber */}
           <div className={styles.resultsHeader}>
-            <p className={styles.title}>Trailer</p>
+            <p className={styles.title}>Recommended clip</p>
             <div className={styles.scrubberRow}>
               <div
                 ref={scrubberRef}
