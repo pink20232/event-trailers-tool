@@ -190,7 +190,7 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
             </p>
           )}
         </div>
-        <div className={`${styles.iconField} ${styles.disabledField}`}>
+        <div className={`${styles.iconField} ${styles.disabledField} ${styles.uploadField}`}>
           <div className={styles.iconContainer}>
             <UploadIcon />
           </div>
