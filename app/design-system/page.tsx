@@ -422,7 +422,7 @@ function FilterChipTab() {
           { id: 'music',        label: 'Music' },
           { id: 'food',         label: 'Food & Drink' },
         ].map(({ id, label }) => (
-          <FilterChip key={id} active={active === id} onClick={() => setActive(id)}>
+          <FilterChip key={id} selected={active === id} onClick={() => setActive(id)}>
             {label}
           </FilterChip>
         ))}
@@ -430,8 +430,8 @@ function FilterChipTab() {
 
       <Divider />
       <SectionTitle>Static states</SectionTitle>
-      <Row label="inactive">  <FilterChip active={false} onClick={() => {}}>Inactive</FilterChip></Row>
-      <Row label="active">    <FilterChip active={true}  onClick={() => {}}>Active</FilterChip></Row>
+      <Row label="inactive">  <FilterChip selected={false} onClick={() => {}}>Inactive</FilterChip></Row>
+      <Row label="active">    <FilterChip selected={true}  onClick={() => {}}>Active</FilterChip></Row>
     </div>
   );
 }
