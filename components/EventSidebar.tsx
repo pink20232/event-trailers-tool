@@ -279,7 +279,7 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
         <div className={styles.sectionHeader}>
           <span className={styles.sectionLabel}>Add your logo</span>
           <p className={styles.sectionSubtitle}>
-            Upload your logo to build trust and help attendees explore your other events.
+            A recognizable logo helps attendees feel confident about your event.
           </p>
         </div>
         <div
