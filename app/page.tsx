@@ -300,7 +300,7 @@ export default function Home() {
             {/* Section header */}
             <div className={styles.panelHeaderSection}>
               <h2 className={styles.formHeading}>Preview</h2>
-              <p className={styles.formSubheading}>See how your event card looks to attendees in the discovery feed.</p>
+              <p className={styles.formSubheading}>See how your event appears in the discovery feed.</p>
             </div>
             <div className={styles.panelHeaderDivider} />
             {/* Phone + Trailer — absolutely positioned like Figma */}
