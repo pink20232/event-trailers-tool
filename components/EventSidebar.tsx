@@ -186,7 +186,7 @@ export const EventSidebar: React.FC<EventSidebarProps> = ({
           )}
           {!videoInfo && !videoUrlError && (
             <p className={styles.helperText}>
-              Already shared on YouTube? Paste the link and we&apos;ll create a preview clip for your event card to show the vibe.
+              Already shared on YouTube? Paste the link, and we&apos;ll pull the best moment as your event card preview.
             </p>
           )}
         </div>
