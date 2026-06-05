@@ -45,7 +45,7 @@
   background: none;
   border: none;
   border-radius: 9999px;
-  cursor: pointer;
+  cursor: default;
   padding: 0;
   flex-shrink: 0;
   transition: background 0.15s ease;
@@ -78,7 +78,7 @@
   font-weight: 500;
   line-height: 1.333;
   letter-spacing: 0.27px;
-  cursor: pointer;
+  cursor: default;
   white-space: nowrap;
   transition: background 0.15s ease;
 }
@@ -103,7 +103,7 @@
   font-weight: 500;
   line-height: 1.333;
   letter-spacing: 0.27px;
-  cursor: pointer;
+  cursor: default;
   min-width: 72px;
   white-space: nowrap;
   transition: background 0.15s ease;
@@ -364,7 +364,7 @@
   font-weight: 500;
   line-height: 1.333;
   letter-spacing: 0.15px;
-  cursor: pointer;
+  cursor: default;
   white-space: nowrap;
   transition: background 0.15s ease;
 }
@@ -388,7 +388,7 @@
   font-weight: 500;
   line-height: 1.333;
   letter-spacing: 0.15px;
-  cursor: pointer;
+  cursor: default;
   white-space: nowrap;
   transition: background 0.15s ease;
 }
