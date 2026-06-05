@@ -120,7 +120,7 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
             ) : (
               <img src="/icons/Icon_Optimize.svg" className={styles.optimizeBtnIcon} width={16} height={16} alt="" />
             )}
-            <span className={styles.optimizeBtnText}>Optimize for discovery</span>
+            <span className={styles.optimizeBtnText}>Sharpen with AI</span>
           </button>
 
           {/* Suggested section — appears after optimization */}
