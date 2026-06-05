@@ -9,6 +9,7 @@
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
+  cursor: default;
 }
 
 /* ── Shared header (empty + analyzing) ───────────────────── */
@@ -46,6 +47,8 @@
   flex-shrink: 0;
   overflow: visible;
   margin-top: auto;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Gradient bar — same width as the text block above (347px) */

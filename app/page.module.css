@@ -449,6 +449,11 @@
   padding-top: 0;
 }
 
+/* Phone is display-only — suppress pointer cursor on all children */
+.phonePos * {
+  cursor: default !important;
+}
+
 /* videoEditorWrap kept for option-1 compatibility */
 .videoEditorWrap {
   width: 468px;
