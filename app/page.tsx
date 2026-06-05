@@ -258,8 +258,8 @@ export default function Home() {
           <div className={styles.centerPanel}>
             {/* Section header */}
             <div className={styles.panelHeaderSection}>
-              <h1 className={styles.formHeading}>Create event discovery card</h1>
-              <p className={styles.formSubheading}>Fill in the basics and see exactly how your event appears to people scrolling the discovery feed.</p>
+              <h1 className={styles.formHeading}>Create your event card</h1>
+              <p className={styles.formSubheading}>This becomes your event card in the discovery feed.</p>
             </div>
             <div className={styles.panelHeaderDivider} />
             {/* Form content */}
