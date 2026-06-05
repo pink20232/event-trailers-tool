@@ -143,7 +143,7 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
           <div className={styles.header}>
             <p className={styles.title}>Recommended clip</p>
             <p className={styles.description}>
-              Our system analyzes your video to select a 10-second moment that best captures your event&apos;s vibe.
+              We analyze your video and pull the 10-second moment that best captures your event.
             </p>
           </div>
           <div className={styles.filmstripWrapper}>
