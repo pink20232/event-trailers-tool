@@ -44,9 +44,12 @@ function getDefaultEventData(): EventData {
   };
 }
 
-// Phone + trailer container dimensions (must match page.module.css)
-const PHONE_CONTAINER_H = 756;
-const PHONE_CONTAINER_W = 557;
+// Phone dimensions — must match MobileMockup.module.css phoneFrame
+const PHONE_H = 720;
+const PHONE_W = 360;
+// Amount the trailer card overlaps the phone bottom (trailer starts at 556px from phone top)
+const PHONE_OVERLAP = PHONE_H - 556; // = 164px
+const TRAILER_H = 200; // VideoEditor card height
 const PANEL_PADDING_X = 96;  // 48px each side
 const PANEL_PADDING_TOP = 24;
 
@@ -78,8 +81,12 @@ export default function Home() {
       const { width, height } = el.getBoundingClientRect();
       const availH = height - PANEL_PADDING_TOP;
       const availW = width - PANEL_PADDING_X;
-      const scale = Math.min(1, availH / PHONE_CONTAINER_H, availW / PHONE_CONTAINER_W);
-      setPhoneScale(Math.max(0.4, scale)); // floor at 40% so it never disappears
+      // Total visible height = (PHONE_H - PHONE_OVERLAP) * scale + TRAILER_H
+      // Solve for scale: s ≤ (availH - TRAILER_H) / (PHONE_H - PHONE_OVERLAP)
+      const scaleH = (availH - TRAILER_H) / (PHONE_H - PHONE_OVERLAP);
+      // Phone must also fit horizontally
+      const scaleW = availW / PHONE_W;
+      setPhoneScale(Math.max(0.6, Math.min(1, scaleH, scaleW)));
     };
     const obs = new ResizeObserver(update);
     obs.observe(el);
@@ -329,54 +336,55 @@ export default function Home() {
               <p className={styles.formSubheading}>See how your event appears in the discovery feed.</p>
             </div>
             <div className={styles.panelHeaderDivider} />
-            {/* Phone + Trailer — absolutely positioned like Figma */}
+            {/* Phone + Trailer */}
             <div className={styles.phonePanelContent} ref={phonePanelContentRef}>
+              {/* Phone only — scaled to fit available height */}
               <div
-                className={styles.phoneAndTrailerContainer}
+                className={styles.phoneWrapper}
                 style={{
                   transform: `scale(${phoneScale})`,
                   transformOrigin: 'top center',
-                  // Collapse the empty layout space created by scale-down
+                  // Collapse empty layout space so trailer sits right below
                   marginBottom: phoneScale < 1
-                    ? `${PHONE_CONTAINER_H * (phoneScale - 1)}px`
+                    ? `${PHONE_H * (phoneScale - 1)}px`
                     : undefined,
                 }}
               >
-                {/* Phone at top */}
-                <div className={styles.phonePos}>
-                  <MobileMockup isMobile>
-                    <EventCardPreview
-                      videoInfo={videoInfo}
-                      startTime={startTime}
-                      endTime={endTime}
-                      eventData={eventData}
-                      organizerLogo={previewLogo}
-                      logoAdjust={logoAdjust}
-                      onLogoClick={() => setIsLogoAdjusting(true)}
-                      onDurationDetected={handleDurationDetected}
-                      onPlaybackTimeUpdate={setCurrentPlaybackTime}
-                    />
-                  </MobileMockup>
-                  {isLogoAdjusting && previewLogo && (
-                    <LogoAdjuster
-                      logoSrc={previewLogo}
-                      adjust={logoAdjust}
-                      onChange={setLogoAdjust}
-                      onClose={() => setIsLogoAdjusting(false)}
-                    />
-                  )}
-                </div>
-                {/* Trailer card — overlaps phone bottom at exactly top: 602px */}
-                <div className={styles.trailerPos}>
-                  <VideoEditor
+                <MobileMockup isMobile>
+                  <EventCardPreview
                     videoInfo={videoInfo}
-                    isAnalyzing={isAnalyzing}
-                    analysisReasons={analysisReasons}
-                    duration={videoDuration || 300}
-                    onTimeRangeChange={handleTimeRangeChange}
-                    suggestedStartTime={suggestedStartTime}
+                    startTime={startTime}
+                    endTime={endTime}
+                    eventData={eventData}
+                    organizerLogo={previewLogo}
+                    logoAdjust={logoAdjust}
+                    onLogoClick={() => setIsLogoAdjusting(true)}
+                    onDurationDetected={handleDurationDetected}
+                    onPlaybackTimeUpdate={setCurrentPlaybackTime}
                   />
-                </div>
+                </MobileMockup>
+                {isLogoAdjusting && previewLogo && (
+                  <LogoAdjuster
+                    logoSrc={previewLogo}
+                    adjust={logoAdjust}
+                    onChange={setLogoAdjust}
+                    onClose={() => setIsLogoAdjusting(false)}
+                  />
+                )}
+              </div>
+              {/* Trailer card — always at natural size, overlaps phone bottom */}
+              <div
+                className={styles.trailerWrapper}
+                style={{ marginTop: `${-PHONE_OVERLAP * phoneScale}px` }}
+              >
+                <VideoEditor
+                  videoInfo={videoInfo}
+                  isAnalyzing={isAnalyzing}
+                  analysisReasons={analysisReasons}
+                  duration={videoDuration || 300}
+                  onTimeRangeChange={handleTimeRangeChange}
+                  suggestedStartTime={suggestedStartTime}
+                />
               </div>
             </div>
           </div>

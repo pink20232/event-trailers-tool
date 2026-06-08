@@ -176,6 +176,10 @@
   line-height: 125%; /* Product/Head XL lineHeight */
   letter-spacing: 0; /* Product/Head XL letterSpacing */
   font-family: 'Founders Grotesk R', 'Inter', sans-serif; /* type/font-family-base */
+  /* Ensure long titles wrap instead of overflowing the frame */
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .dateTimeLine {

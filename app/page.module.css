@@ -420,40 +420,33 @@
   min-height: 0;
 }
 
-/* Fixed-size container — phone + trailer absolutely inside */
-.phoneAndTrailerContainer {
-  position: relative;
-  width: 557px;
-  height: 756px;
+/* Phone wrapper — scaled to fit the available panel height */
+.phoneWrapper {
   flex-shrink: 0;
-}
-
-/* Phone anchored to the top of the container, centered horizontally */
-.phonePos {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Trailer card — 24px below event card placeholder + content, 556px wide centered */
-.trailerPos {
-  position: absolute;
-  top: 556px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  position: relative; /* needed for LogoAdjuster absolute positioning */
 }
 
 /* Remove MobileMockup's own padding-top inside this layout */
-.phonePos :global(.mobileMockup) {
+.phoneWrapper :global(.mobileMockup) {
   padding-top: 0;
 }
 
 /* Phone is display-only — suppress pointer cursor on all children */
-.phonePos * {
+.phoneWrapper * {
   cursor: default !important;
 }
+
+/* Trailer card — natural (unscaled) size, overlaps phone bottom via inline marginTop */
+.trailerWrapper {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Legacy names kept so old refs don't 404 ──────────────── */
+.phoneAndTrailerContainer { /* no-op */ }
+.phonePos { /* no-op */ }
+.trailerPos { /* no-op */ }
 
 /* videoEditorWrap kept for option-1 compatibility */
 .videoEditorWrap {
