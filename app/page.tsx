@@ -45,11 +45,12 @@ function getDefaultEventData(): EventData {
 }
 
 // Phone dimensions — must match MobileMockup.module.css phoneFrame
-const PHONE_H = 720;
+const PHONE_H = 780;
 const PHONE_W = 360;
-// Amount the trailer card overlaps the phone bottom (trailer starts at 556px from phone top)
-const PHONE_OVERLAP = PHONE_H - 556; // = 164px
+// Amount the trailer card overlaps the phone bottom (trailer starts at 602px from phone top — Figma)
+const PHONE_OVERLAP = PHONE_H - 602; // = 178px
 const TRAILER_H = 200; // VideoEditor card height
+const TRAILER_BOTTOM_PAD = 48; // breathing room below the trailer card
 const PANEL_PADDING_X = 96;  // 48px each side
 const PANEL_PADDING_TOP = 24;
 
@@ -83,7 +84,7 @@ export default function Home() {
       const availW = width - PANEL_PADDING_X;
       // Total visible height = (PHONE_H - PHONE_OVERLAP) * scale + TRAILER_H
       // Solve for scale: s ≤ (availH - TRAILER_H) / (PHONE_H - PHONE_OVERLAP)
-      const scaleH = (availH - TRAILER_H) / (PHONE_H - PHONE_OVERLAP);
+      const scaleH = (availH - TRAILER_H - TRAILER_BOTTOM_PAD) / (PHONE_H - PHONE_OVERLAP);
       // Phone must also fit horizontally
       const scaleW = availW / PHONE_W;
       setPhoneScale(Math.max(0.6, Math.min(1, scaleH, scaleW)));
