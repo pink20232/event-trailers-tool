@@ -2,7 +2,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 96px 24px 24px;
+  padding: 96px 0 24px; /* no horizontal padding — eventCard fills phone screen edge-to-edge */
   background: var(--color-neutral-50, #f5f5f5);
   border-radius: 8px;
 }
@@ -11,7 +11,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px; /* Vertical margin between sections */
-  max-width: 361px; /* Match mediaFrame width for alignment */
   width: 100%;
   background: white;
   border-radius: 16px; /* radius/radius-lg */
@@ -24,7 +23,7 @@
 /* Media Frame Section */
 .mediaFrame {
   position: relative;
-  width: 361px; /* Match Figma width */
+  width: 100%; /* fill eventCard — same containing block as titleStack */
   padding-bottom: 100%; /* 1:1 aspect ratio using padding-bottom technique */
   border-radius: 16px 16px 0 0;
   overflow: hidden;
@@ -282,7 +281,7 @@
   justify-content: space-between;
   padding: 12px 16px 20px;
   background: white;
-  width: 311px;
+  width: 100%;
 }
 
 /* Left group: From $- button + icon buttons, all on one row */
