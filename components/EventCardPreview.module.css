@@ -159,9 +159,9 @@
 .titleStack {
   position: absolute;
   bottom: 21px;
-  left: 4.43%; /* 16px / 361px */
+  left: 16px;
+  right: 16px;
   z-index: 5;
-  max-width: 85.87%; /* 310px / 361px */
   display: flex;
   flex-direction: column;
 }
@@ -182,8 +182,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
+  min-height: 20px;
+  height: auto;
   margin-bottom: 2px;
+  flex-wrap: wrap;
 }
 
 .dateTime {
@@ -208,7 +210,8 @@
 }
 
 .locationLine {
-  height: 20px;
+  min-height: 20px;
+  height: auto;
   display: flex;
   align-items: center;
 }

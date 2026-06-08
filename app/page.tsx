@@ -44,6 +44,12 @@ function getDefaultEventData(): EventData {
   };
 }
 
+// Phone + trailer container dimensions (must match page.module.css)
+const PHONE_CONTAINER_H = 756;
+const PHONE_CONTAINER_W = 557;
+const PANEL_PADDING_X = 96;  // 48px each side
+const PANEL_PADDING_TOP = 24;
+
 export default function Home() {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [startTime, setStartTime] = useState(0);
@@ -60,6 +66,26 @@ export default function Home() {
   const [isLogoAdjusting, setIsLogoAdjusting] = useState(false);
   // Ref so the analysis effect always reads the latest videoInfo without re-triggering
   const pendingAnalysisRef = useRef<{ info: VideoInfo } | null>(null);
+
+  // Responsive scaling: shrink phone+trailer to always fit above the fold
+  const phonePanelContentRef = useRef<HTMLDivElement>(null);
+  const [phoneScale, setPhoneScale] = useState(1);
+
+  useEffect(() => {
+    const el = phonePanelContentRef.current;
+    if (!el) return;
+    const update = () => {
+      const { width, height } = el.getBoundingClientRect();
+      const availH = height - PANEL_PADDING_TOP;
+      const availW = width - PANEL_PADDING_X;
+      const scale = Math.min(1, availH / PHONE_CONTAINER_H, availW / PHONE_CONTAINER_W);
+      setPhoneScale(Math.max(0.4, scale)); // floor at 40% so it never disappears
+    };
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    update();
+    return () => obs.disconnect();
+  }, []);
 
   const handleVideoLoad = (info: VideoInfo) => {
     setVideoInfo(info);
@@ -304,8 +330,18 @@ export default function Home() {
             </div>
             <div className={styles.panelHeaderDivider} />
             {/* Phone + Trailer — absolutely positioned like Figma */}
-            <div className={styles.phonePanelContent}>
-              <div className={styles.phoneAndTrailerContainer}>
+            <div className={styles.phonePanelContent} ref={phonePanelContentRef}>
+              <div
+                className={styles.phoneAndTrailerContainer}
+                style={{
+                  transform: `scale(${phoneScale})`,
+                  transformOrigin: 'top center',
+                  // Collapse the empty layout space created by scale-down
+                  marginBottom: phoneScale < 1
+                    ? `${PHONE_CONTAINER_H * (phoneScale - 1)}px`
+                    : undefined,
+                }}
+              >
                 {/* Phone at top */}
                 <div className={styles.phonePos}>
                   <MobileMockup isMobile>
