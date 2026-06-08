@@ -28,9 +28,20 @@ function generateFallback(description: string): { suggestion: string; explanatio
   // hasCraft = hands-on making only — NOT general "arts" or "crafts" at a festival
   const hasCraft   = lower.includes('workshop') || lower.includes('pottery') || lower.includes('candle') || lower.includes('brew') || lower.includes('hands-on') || (lower.includes('paint') && !hasFestival);
 
-  // Extract the largest prominent number (vendor count, attendee cap, etc.)
-  const nums = (description.match(/\b(\d+)\b/g) || []).map(Number).filter(n => n > 5);
-  const bigNum = nums.length ? Math.max(...nums) : 0;
+  // Extract the best "count" number from the description.
+  // Priority 1: numbers explicitly written as "200+" — these are always counts,
+  //             never brand names or prices.
+  // Priority 2: numbers near count-like keywords (vendors, attractions, etc.)
+  // Priority 3: largest plain number > 5 (last resort — avoids brand names like "626")
+  const explicitCounts = (description.match(/\b(\d+)\+/g) || []).map(s => parseInt(s, 10));
+  const contextNums = [...description.matchAll(/\b(\d{2,})\b(?=\s+(?:vendor|attraction|food|booth|performer|artist|act)s?)/gi)]
+    .map(m => parseInt(m[1], 10));
+  const allNums = (description.match(/\b(\d+)\b/g) || []).map(Number).filter(n => n > 5 && n < 10000);
+  const bigNum = explicitCounts.length
+    ? Math.max(...explicitCounts)
+    : contextNums.length
+      ? Math.max(...contextNums)
+      : allNums.length ? Math.max(...allNums) : 0;
 
   // Build a short activity list from what's actually mentioned
   const activities: string[] = [];
