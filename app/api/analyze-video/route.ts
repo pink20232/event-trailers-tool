@@ -98,25 +98,26 @@ Your tasks:
 1. Suggest the best START time (in seconds) for a 10-second highlight clip. Avoid the first 10% (usually intro) and last 5%. Prefer the 20–50% range unless the metadata strongly suggests a better moment.
 
 2. Write one reason per label. Each reason must:
-   - Be 12–18 words, written in natural spoken English
-   - Reference something SPECIFIC to this event — pull from the title, description, or tags
-   - Sound like a friend who's been and is recommending it, not a press release
-   - NEVER use these filler phrases: "captures the energy", "sets it apart", "genuine connection", "attendees will experience", "distinctive moment", "memorable experience"
+   - Be 8–12 words MAXIMUM — short enough to always read as a complete thought
+   - End as a grammatically complete sentence or punchy fragment (never trail off mid-idea)
+   - Describe what someone will SEE, FEEL, or EXPERIENCE — not trivia or event history
+   - Reference something concrete from the title, description, or tags (activity, food, place, scale)
+   - Sound like a friend who's been there, not a press release or Wikipedia entry
+   - NEVER use: "captures the energy", "sets it apart", "genuine connection", "attendees will experience", "distinctive moment", "memorable"
 
-   Label definitions (use these as lenses, not as templates):
-   - Vibe: what the crowd energy or atmosphere actually feels like at this event
-   - Uniqueness: one concrete thing about this event you won't find anywhere else
-   - Authenticity: a real, human moment this kind of event reliably delivers
+   Label definitions:
+   - Vibe: what the crowd energy or atmosphere feels like in the moment
+   - Uniqueness: one concrete thing here you won't find at a generic event
+   - Authenticity: a real, unscripted human moment this type of event delivers
 
-   Bad (generic, could describe any event):
-   - "Peak energy that captures the event atmosphere."
-   - "A distinctive moment that sets this event apart."
-   - "Genuine connection and joy attendees will experience."
+   Bad (too long, trails off, or sounds like trivia):
+   - "11 seasons running—626 Night Market is the SoCal food festival that started the whole trend." ← trivia, too long
+   - "Summer nights packed with hungry crowds hunting through food stalls under bright lights and good energy." ← too long
 
-   Good (specific to a night market with 200+ vendors and Asian street food):
-   - "Sensory overload of food stalls, lights, and a crowd that came hungry."
-   - "200+ Asian-inspired vendors you won't find at a typical California fair."
-   - "Real people eating real street food — no dress code, just good vibes."
+   Good (8-12 words, concrete, complete):
+   - "Hungry crowds, bright lights, 200+ stalls of street food."
+   - "Asian night market culture you won't find at a county fair."
+   - "Real vendors, real food — no corporate polish, just community."
 
 Respond ONLY with valid JSON:
 {

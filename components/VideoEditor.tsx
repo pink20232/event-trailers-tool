@@ -316,7 +316,8 @@ function FittedText({ text, className }: { text: string; className?: string }) {
     }
 
     el.parentElement!.removeChild(clone);
-    setDisplay(words.slice(0, lo).join(' '));
+    // Apply period to whatever word count actually fits (not the full original)
+    setDisplay(addPeriod(words.slice(0, lo).join(' ')));
   }, [text]);
 
   return <p ref={ref} className={className}>{display}</p>;
