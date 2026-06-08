@@ -291,7 +291,7 @@ function FittedText({ text, className }: { text: string; className?: string }) {
 
     const lhRaw = getComputedStyle(el).lineHeight;
     const lh = lhRaw === 'normal' ? parseFloat(getComputedStyle(el).fontSize) * 1.333 : parseFloat(lhRaw);
-    const maxH = lh * 3 + 2; // 3 lines + 2px tolerance
+    const maxH = lh * 4 + 2; // 4 lines + 2px tolerance
 
     // Already fits?
     if (el.scrollHeight <= maxH) { setDisplay(text); return; }

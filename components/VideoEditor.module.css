@@ -1,7 +1,7 @@
 /* ── Card shell ──────────────────────────────────────────── */
 .card {
   width: 500px;
-  height: 200px;
+  height: 218px;
   background: white;
   border-radius: 24px;
   padding: 24px;
@@ -351,6 +351,6 @@
   margin: 0;
   letter-spacing: 0.135px;
   overflow: hidden;
-  /* 3-line max-height fallback — JS will trim text to fit cleanly */
-  max-height: calc(13.5px * 1.333 * 3 + 2px);
+  /* 4-line max-height fallback — JS will trim text to fit cleanly */
+  max-height: calc(13.5px * 1.333 * 4 + 2px);
 }

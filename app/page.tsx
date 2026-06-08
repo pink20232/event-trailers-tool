@@ -49,7 +49,7 @@ const PHONE_H = 780;
 const PHONE_W = 360;
 // Amount the trailer card overlaps the phone bottom (trailer starts at 602px from phone top — Figma)
 const PHONE_OVERLAP = PHONE_H - 602; // = 178px
-const TRAILER_H = 200; // VideoEditor card height
+const TRAILER_H = 218; // VideoEditor card height (200 + 18px for 4-line reasons)
 const TRAILER_BOTTOM_PAD = 48; // breathing room below the trailer card
 const PANEL_PADDING_X = 96;  // 48px each side
 const PANEL_PADDING_TOP = 24;
