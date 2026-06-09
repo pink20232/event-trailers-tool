@@ -103,6 +103,7 @@ Your tasks:
    - Describe what someone will SEE, FEEL, or EXPERIENCE — not trivia or event history
    - Reference something concrete from the title, description, or tags (activity, food, place, scale)
    - Sound like a friend who's been there, not a press release or Wikipedia entry
+   - NEVER invent details not present in the metadata — no assumed seasons ("summer"), weather, times of day, or demographics unless explicitly stated
    - NEVER use: "captures the energy", "sets it apart", "genuine connection", "attendees will experience", "distinctive moment", "memorable"
 
    Label definitions:
