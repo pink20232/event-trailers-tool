@@ -12,6 +12,8 @@ interface SuggestionRequest {
 interface SuggestionResponse {
   suggestion: string;
   explanation: string;
+  /** Which engine produced this — 'claude' is the real thing, 'fallback' is keyword templates. */
+  source?: 'claude' | 'fallback';
 }
 
 /** Keyword-based fallback used when no API key is configured */
@@ -140,14 +142,15 @@ export async function POST(request: NextRequest) {
     // Try Claude; fall back to keyword heuristic if API key is missing
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
+      console.warn('[description-suggestions] No ANTHROPIC_API_KEY — using keyword fallback. Output will be template copy.');
       await new Promise(r => setTimeout(r, 900));
       const { suggestion, explanation } = generateFallback(description);
-      return NextResponse.json({ suggestion, explanation } satisfies SuggestionResponse);
+      return NextResponse.json({ suggestion, explanation, source: 'fallback' } satisfies SuggestionResponse);
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 300,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 500,
       messages: [
         {
           role: 'user',
@@ -193,14 +196,19 @@ Respond with a JSON object — no other text:
     let { suggestion, explanation } = parsed;
     if (suggestion.length > 160) suggestion = suggestion.slice(0, 157).trimEnd() + '…';
 
-    return NextResponse.json({ suggestion, explanation } satisfies SuggestionResponse);
+    return NextResponse.json({ suggestion, explanation, source: 'claude' } satisfies SuggestionResponse);
   } catch (err) {
-    console.error('description-suggestions error:', err);
+    // Loud and specific: a bad model id, an expired key, and a JSON parse failure
+    // all used to look identical to a working feature (silent template output).
+    const detail = err instanceof Anthropic.APIError
+      ? `Anthropic API ${err.status}: ${err.message}`
+      : err instanceof Error ? err.message : String(err);
+    console.error(`[description-suggestions] Claude call FAILED (${detail}) — falling back to keyword template.`);
     // `description` was captured before the Claude call, so the fallback
     // always has the original text even after the request stream is consumed.
     if (description.trim()) {
       const { suggestion, explanation } = generateFallback(description);
-      return NextResponse.json({ suggestion, explanation } satisfies SuggestionResponse);
+      return NextResponse.json({ suggestion, explanation, source: 'fallback' } satisfies SuggestionResponse);
     }
     return NextResponse.json({ error: 'Failed to generate suggestion' }, { status: 500 });
   }
