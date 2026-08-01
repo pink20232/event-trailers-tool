@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { SUMMARY_MAX_CHARS, trimToWordBoundary } from '@/lib/summaryLimits';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -60,7 +61,10 @@ function generateFallback(description: string): { suggestion: string; explanatio
   // Order matters: most distinctive type first.
   // Festival/market with a specific scale number → always wins over generic craft+food.
   if (hasFestival && bigNum > 0 && activityStr) {
-    suggestion = `Make a full day of it with ${bigNum}+ ${activityStr} — a festival the whole family can enjoy.`;
+    // Kept short on purpose: with the longest 4-item activity list (34 chars)
+    // and a 4-digit count this lands at ~97 chars, inside SUMMARY_MAX_CHARS,
+    // so it never gets trimmed mid-sentence.
+    suggestion = `Make a day of it with ${bigNum}+ ${activityStr} — a festival for the whole family.`;
     explanation = `Anchoring on ${bigNum}+ signals scale and value. Listing the actual activities (${activityStr}) gives people concrete reasons to come.`;
   } else if (hasFestival && bigNum > 0) {
     suggestion = `Explore ${bigNum}+ vendors of food, shopping, and entertainment — a full-day festival for everyone.`;
@@ -96,23 +100,22 @@ function generateFallback(description: string): { suggestion: string; explanatio
     suggestion = 'Taste your way through the best of what\'s local — leave full, inspired, and wanting more.';
     explanation = 'Sensory outcome chain. "Wanting more" signals a high-quality experience without overpromising.';
   } else {
-    // Last resort: trim to ≤160 chars
-    const trimmed = description.replace(/\s+/g, ' ').trim();
-    suggestion = trimmed.length <= 160 ? trimmed : trimmed.slice(0, 157).trimEnd() + '…';
-    explanation = 'Condensed to fit the 160-character discovery card limit while preserving the key details.';
+    // Last resort: condense the original description to the card limit
+    suggestion = trimToWordBoundary(description);
+    explanation = `Condensed to fit the ${SUMMARY_MAX_CHARS}-character discovery card limit while preserving the key details.`;
   }
 
-  if (suggestion.length > 160) suggestion = suggestion.slice(0, 157).trimEnd() + '…';
+  suggestion = trimToWordBoundary(suggestion);
   return { suggestion, explanation };
 }
 
 const PROMPT_EXAMPLES = `
-Good examples (study these patterns):
-- "Taste 75+ coffees, discover new brewing trends, and leave inspired with new favorites and connections." (96 chars)
-- "Make a full day of it with 200+ food, crafts, music, and games — a California festival the whole family can enjoy." (114 chars)
-- "Start grounded with yoga, end dancing outdoors to DJs and live brass — a feel-good spring day at Thrive City." (110 chars)
+Good examples (study these patterns — note how SHORT they are):
+- "Taste 75+ coffees, discover new brewing trends, and leave with new favorites." (77 chars)
+- "Graze 200+ booths of food, crafts, and games at the largest Asian night market." (78 chars)
+- "Start grounded with yoga, end dancing to live brass at Thrive City." (67 chars)
 - "Learn sourdough from scratch and walk away with a loaf you baked yourself." (74 chars)
-- "Meet 100+ founders building in climate tech — pitch, listen, and leave with three new collaborators." (101 chars)
+- "Meet 100+ climate tech founders — pitch, listen, leave with new collaborators." (78 chars)
 
 What makes them work:
 - Action verbs up front ("Taste", "Make", "Start", "Learn", "Meet")
@@ -159,13 +162,23 @@ export async function POST(request: NextRequest) {
 ${PROMPT_EXAMPLES}
 
 Rules (non-negotiable):
-- ≤ 160 characters — count every character before writing the final answer
+- ≤ ${SUMMARY_MAX_CHARS} characters — this is a HARD limit. The card shows exactly 3 short lines
+  and anything longer gets visibly cut off. Aim for 80–95 characters; never exceed ${SUMMARY_MAX_CHARS}.
+- One sentence. Pick the two or three strongest details and cut everything else —
+  do not try to fit the whole event in. Leaving something out is correct.
 - Outcome-based: what will attendees TASTE, FEEL, LEARN, GAIN, or WALK AWAY WITH?
 - Pull specifics directly from the description: exact numbers, named activities, place names
 - For festivals and markets: anchor on the vendor/attraction count and list the top 3-4 activities
 - Action-forward opening — start with a verb or an activity
 - No hashtags, no emoji, no generic filler ("amazing", "unforgettable", "fun for all", "join us")
 - Natural spoken English — sounds like a friend recommending it, not a press release
+- ACCURACY IS NON-NEGOTIABLE. Every claim must be traceable to the description:
+  - Never invent or inflate numbers. Use counts exactly as written. If the only
+    number is part of a brand name (e.g. "626 Night Market"), it is NOT a count.
+  - Never change what a detail refers to. "Free entry" does not mean free drinks;
+    "beer garden" does not mean beer is included; "3 DJs" does not mean 3 stages.
+  - Never add seasons, weather, times of day, prices, or demographics that are absent.
+  - When compressing, drop details — never merge two facts into a new claim.
 
 Event description:
 """
@@ -177,11 +190,11 @@ Think step-by-step:
 2. What are the 2–3 most concrete, sensory, or valuable things a person will experience?
 3. Are there specific numbers, named activities, or a place name I can use?
 4. Draft a summary that opens with action and ends with the feeling or outcome.
-5. Count the characters. Trim if over 160.
+5. Count the characters. If over ${SUMMARY_MAX_CHARS}, cut a whole detail rather than shortening words.
 
 Respond with a JSON object — no other text:
 {
-  "suggestion": "<the ≤160-char outcome-based summary>",
+  "suggestion": "<the ≤${SUMMARY_MAX_CHARS}-char outcome-based summary>",
   "explanation": "<1–2 sentences on why this framing works for discovery — be specific about the choices made>"
 }`,
         },
@@ -194,7 +207,12 @@ Respond with a JSON object — no other text:
     const parsed = JSON.parse(jsonStr) as { suggestion: string; explanation: string };
 
     let { suggestion, explanation } = parsed;
-    if (suggestion.length > 160) suggestion = suggestion.slice(0, 157).trimEnd() + '…';
+    // Safety net only — the prompt should already keep this under the limit.
+    // Trim at a word boundary (no mid-word cut, no ellipsis) so the card never clips.
+    if (suggestion.length > SUMMARY_MAX_CHARS) {
+      console.warn(`[description-suggestions] Claude returned ${suggestion.length} chars (limit ${SUMMARY_MAX_CHARS}) — trimming: "${suggestion}"`);
+      suggestion = trimToWordBoundary(suggestion);
+    }
 
     return NextResponse.json({ suggestion, explanation, source: 'claude' } satisfies SuggestionResponse);
   } catch (err) {

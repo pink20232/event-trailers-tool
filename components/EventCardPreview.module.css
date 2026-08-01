@@ -240,7 +240,10 @@
   --content-center: calc(16px + (100% - 32px) / 2); /* 16px padding + half of content width */
 }
 
-/* Description text - 160 characters event summary */
+/* Description text — event summary, clamped to 3 lines.
+   Capacity at this width/font is ~109 chars of realistic prose; the generated
+   limit is SUMMARY_MAX_CHARS in lib/summaryLimits.ts. Re-measure if you change
+   the width, font-size, or line-clamp below. */
 .contentSection .description {
   padding: 0;
   margin: 0;

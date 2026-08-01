@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { trimToWordBoundary } from '@/lib/summaryLimits';
 import styles from './SummaryModal.module.css';
 
 interface SummaryModalProps {
@@ -70,8 +71,7 @@ export const SummaryModal: React.FC<SummaryModalProps> = ({
   };
 
   const handleKeepOriginal = () => {
-    const trimmed = description.trim();
-    onDone(trimmed.length <= 160 ? trimmed : trimmed.slice(0, 160).trimEnd());
+    onDone(trimToWordBoundary(description));
   };
 
   const hasSuggestion = suggested !== null && suggested !== '';

@@ -5,6 +5,7 @@ import { Typography, Stack, Button } from '@eventbrite/marmalade';
 import { type VideoInfo } from '@/lib/videoUtils';
 import { type EventData } from './EventSidebar';
 import { type LogoAdjust } from './LogoAdjuster';
+import { SUMMARY_MAX_CHARS, trimToWordBoundary } from '@/lib/summaryLimits';
 import styles from './EventCardPreview.module.css';
 
 interface EventCardPreviewProps {
@@ -427,11 +428,14 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
     return `${displayHour}${minutes !== '00' ? `:${minutes}` : ''}${period}`;
   };
 
-  // Truncate description to 160 characters for preview
-  const truncateDescription = (text: string, maxLength: number = 160): string => {
+  // Fit the summary to the card's 3-line description area.
+  // AI suggestions already arrive within SUMMARY_MAX_CHARS, so this is a no-op
+  // for them; it only kicks in for longer hand-typed summaries. Trims on a word
+  // boundary instead of mid-word, and adds no '...' — the card reserves exactly
+  // 3 lines, so text that fits the limit is never visually cut.
+  const truncateDescription = (text: string, maxLength: number = SUMMARY_MAX_CHARS): string => {
     if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength).trim() + '...';
+    return trimToWordBoundary(text, maxLength);
   };
 
   // Show event card with default/cold start values even without video
@@ -482,7 +486,7 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
             </div>
           </div>
 
-          {/* Content Section - 160 characters event summary */}
+          {/* Content Section — event summary, fitted to the card's 3-line area */}
           <div className={styles.contentSection}>
             <div className={styles.description}>
               <Typography variant="body-md" color="neutral-700">
@@ -620,7 +624,7 @@ export const EventCardPreview: React.FC<EventCardPreviewProps> = ({
           />
         </button>
 
-        {/* Content Section - 160 characters event summary */}
+        {/* Content Section — event summary, fitted to the card's 3-line area */}
         <div className={styles.contentSection}>
           <div className={styles.description}>
             <Typography variant="body-md" color="neutral-700">
